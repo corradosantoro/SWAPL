@@ -1,4 +1,5 @@
 #!/bin/sh
 #
 
-python3 swapl.py $*
+export PYTHONPATH=../lib:$PYTHONPATH
+python3 ../lib/swapl.py $*
