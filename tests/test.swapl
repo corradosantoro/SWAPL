@@ -1,0 +1,36 @@
+
+model "base_agent";
+
+roleset ( { name : "leader" },
+          { name : "follower" } );
+
+agentset ( { name : "main_agent", role : "leader" },
+           { name : "another", role : "follower" },
+           { name : "another_one", role : "follower" } );
+
+attributes ( variable );
+
+behaviour test {
+  with all {
+    print("hello");
+  }
+}
+
+behaviour main {
+  with all {
+    var a = 3 + 2;
+    print("ciao", a, this.name, this.role, this);
+  }
+  #
+  with one {
+    var c = 3 + 5;
+    var d = c + 10;
+    print(this, c, d);
+    this.variable = d;
+  }
+  #
+  with all {
+    print(this.object, this.variable);
+  }
+}
+
