@@ -16,6 +16,13 @@ class UndefinedVarException(Exception):
 
 
 # -----------------------------------------------------------------
+class UndefinedFieldException(Exception):
+
+    def __init__(self, uMessage):
+        super().__init__(uMessage)
+
+
+# -----------------------------------------------------------------
 class InvalidOpeningInstructionException(Exception):
 
     def __init__(self):

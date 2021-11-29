@@ -18,14 +18,15 @@ reserved = {
     'roleset' : 'ROLESET',
     'agentset' : 'AGENTSET',
     'attributes' : 'AGENTATTRSET',
+    'while' : 'WHILE',
+    'if' : 'IF',
+    'else' : 'ELSE',
     # 'uavset' : 'UAVSET',
     # 'fun' : 'FUN',
     # 'roles' : 'ROLES',
     # 'this' : 'THIS',
     # 'index' : 'INDEX',
     # 'sync' : 'SYNC',
-    # 'if' : 'IF',
-    # 'else' : 'ELSE'
     }
 
 tokens = list(reserved.values()) + ['SEMICOLON',

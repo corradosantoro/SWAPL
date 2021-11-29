@@ -173,7 +173,8 @@ def p_statements_2(t):
 
 def p_statement(t):
     ''' statement : assign
-                  | funcall '''
+                  | funcall
+                  | if_block '''
     t[0] = t[1]
 
 # ------------------------------------------------------
@@ -183,6 +184,28 @@ def p_funcall(t):
     ' funcall : NAME list_set_statement SEMICOLON '
     (count, pgm) = t[2]
     t[0] = pgm + [ MkOrdSet(count), Call(t[1]) ]
+
+# ------------------------------------------------------
+# if
+# ------------------------------------------------------
+def p_if_1(t):
+    ' if_block : IF LPAREN expr RPAREN then_else_statement '
+    to_skip = len(t[5])
+    t[0] = t[3] + [ Skip( (Skip.NEQ, to_skip) ) ] + t[5]
+# ------------------------------------------------------
+def p_if_2(t):
+    ' if_block : IF LPAREN expr RPAREN then_else_statement ELSE then_else_statement'
+    to_skip = len(t[5])
+    t[0] = t[3] + [ Skip( (Skip.NEQ, to_skip + 1) ) ] + t[5] + \
+      [ Skip( (Skip.UNCONDITIONAL, len(t[7]) ) ) ] + t[7]
+# ------------------------------------------------------
+def p_then_else_1(t):
+    ' then_else_statement : statement '
+    t[0] = t[1]
+# ------------------------------------------------------
+def p_then_else_2(t):
+    ' then_else_statement : BEGIN statements END '
+    t[0] = t[2]
 
 # ------------------------------------------------------
 # expressions
@@ -210,7 +233,7 @@ def p_d_expr(t):
 
 def p_eequal(t):
     'expr : expr EEQUAL expr'
-    #t[0] = (t[1], " == ", t[3])
+    t[0] = t[1] + t[3] + [ Sub() ]
 
 def p_expression_group(t):
     'expr : LPAREN expr RPAREN'

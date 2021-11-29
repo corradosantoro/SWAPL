@@ -86,8 +86,14 @@ class SWAPL_Behaviour:
         for w in self.with_blocks:
             #
             runtime.push_heap()
-            for i in w:
-                i.execute(runtime)
+
+            pc = 0
+            while (pc < len(w)):
+                target = w[pc].execute(pc, runtime)
+                if target is not None:
+                    pc = target
+                else:
+                    pc += 1
             runtime.pop_heap()
 
     def run(self, runtime):
@@ -133,6 +139,11 @@ class SWAPL_Thread(threading.Thread):
 
     def run(self):
         self.entering_point.meet()
-        for i in self.program:
-            i.execute(self.runtime)
+        pc = 0
+        while (pc < len(self.program)):
+            target = self.program[pc].execute(pc, self.runtime)
+            if target is not None:
+                pc = target
+            else:
+                pc += 1
 
