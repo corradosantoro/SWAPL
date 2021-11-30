@@ -174,7 +174,8 @@ def p_statements_2(t):
 def p_statement(t):
     ''' statement : assign
                   | funcall
-                  | if_block '''
+                  | if_block
+                  | while_block'''
     t[0] = t[1]
 
 # ------------------------------------------------------
@@ -208,6 +209,15 @@ def p_then_else_2(t):
     t[0] = t[2]
 
 # ------------------------------------------------------
+# while
+# ------------------------------------------------------
+def p_while(t):
+    ' while_block : WHILE LPAREN expr RPAREN then_else_statement '
+    to_skip = len(t[5])
+    jump_target = to_skip + 1 + len(t[3]) + 1
+    t[0] = t[3] + [ Skip( (Skip.EQ, to_skip + 1) ) ] + t[5] + \
+      [ Skip( (Skip.UNCONDITIONAL, -jump_target) ) ]
+# ------------------------------------------------------
 # expressions
 # ------------------------------------------------------
 
@@ -234,6 +244,10 @@ def p_d_expr(t):
 def p_eequal(t):
     'expr : expr EEQUAL expr'
     t[0] = t[1] + t[3] + [ Sub() ]
+
+def p_lt(t):
+    'expr : expr LT expr'
+    t[0] = t[1] + t[3] + [ CmpLT() ]
 
 def p_expression_group(t):
     'expr : LPAREN expr RPAREN'

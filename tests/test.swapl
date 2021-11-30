@@ -38,6 +38,11 @@ behaviour main {
   #
   with all {
     print(this.object, this.variable);
+    var a = 0;
+    while (a < 10) {
+      print(this.name, a);
+      a = a + 1;
+    }
   }
 }
 

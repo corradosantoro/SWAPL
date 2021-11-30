@@ -110,12 +110,13 @@ class SWAPL_Behaviour:
             #print(agent_set)
 
             entering_point = MeetingPoint(agent_set.size())
+            exiting_point = MeetingPoint(agent_set.size())
 
             thread_list = [ ]
             for ag in agent_set.items():
-                new_runtime = SWAPL_Runtime(runtime.get_heap(), self)
+                new_runtime = SWAPL_Runtime(runtime.get_heap().clone(), self)
                 new_runtime.set_agent(ag)
-                th = SWAPL_Thread(ag, new_runtime, w[1:], entering_point)
+                th = SWAPL_Thread(ag, new_runtime, w[1:], entering_point, exiting_point)
                 th.start()
                 thread_list.append(th)
 
@@ -129,12 +130,13 @@ class SWAPL_Behaviour:
 
 class SWAPL_Thread(threading.Thread):
 
-    def __init__(self, agent, runtime, program, entering_point):
+    def __init__(self, agent, runtime, program, entering_point, exiting_point):
         super().__init__()
         self.agent = agent
         self.runtime = runtime
         self.program = program
         self.entering_point = entering_point
+        self.exiting_point = exiting_point
         #self.set_daemon(False)
 
     def run(self):
@@ -146,4 +148,5 @@ class SWAPL_Thread(threading.Thread):
                 pc = target
             else:
                 pc += 1
+        self.exiting_point.meet()
 
