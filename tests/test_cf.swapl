@@ -1,0 +1,17 @@
+
+model "crazyflie";
+
+roleset ( { name : "leader" },
+          { name : "follower" } );
+
+agentset ( { name : "one", role : "leader", uri : "radio://0/80/2M/E7E7E7E701" } );
+
+behaviour main {
+  with roles("leader") {
+    while (true) {
+       print(this.name, this.x, this.y);
+       wait(0.5);
+    }
+  }
+}
+

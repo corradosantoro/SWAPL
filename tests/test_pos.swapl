@@ -1,0 +1,26 @@
+
+model "base_agent";
+
+roleset ( { name : "leader" },
+          { name : "follower" } );
+
+agentset ( { name : "one", role : "leader" },
+           { name : "two", role : "follower" },
+           { name : "three", role : "follower" } );
+
+attributes ( variable );
+
+behaviour main {
+  with roles("follower") {
+    var hdg = rand(0, 90);
+    print("ciao", this.name, hdg);
+    this.heading = hdg;
+    this.v = 33;
+    this.w = 5;
+  }
+  with roles("leader") {
+    var leader = role("follower");
+    print(this.name, leader.name);
+  }
+}
+
