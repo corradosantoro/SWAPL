@@ -81,11 +81,40 @@ class Skip(Instruction):
             return None
 # -----------------------------------------------------------------
 class Call(Instruction):
-    def execute(self, pc, runtime):
-        ( proc, arity ) = runtime.get_agent_object().get_method(self.term)
-        args = StartSL.pop_list(runtime, arity)
-        proc(*args)
+    def fun_call_execute(self, isfun, pc, runtime):
+        f = runtime.program.get_function(self.term)
+        if f is None:
+            ( proc, arity ) = runtime.get_agent_object().get_method(self.term)
+            args = StartSL.pop_list(runtime, arity)
+            if isfun:
+                ret = proc(*args)
+                runtime.push(ret)
+            else:
+                proc(*args)
+            return None
+        else:
+            from swapl_runtime import SWAPL_Runtime, SWAPL_Heap
+            heap = SWAPL_Heap()
+            params = f.get_params()
+            i = len(params) - 1
+            while i >= 0:
+                heap.make_var(params[i])
+                heap.set_var(params[i], runtime.pop())
+                i -= 1
+            new_runtime = SWAPL_Runtime(f.get_code(), heap, runtime.behaviour)
+            new_runtime.run()
         #runtime.call(self.term)
+
+    def execute(self, pc, runtime):
+        self.fun_call_execute(False, pc, runtime)
+# -----------------------------------------------------------------
+class FunCall(Call):
+    def execute(self, pc, runtime):
+        return self.fun_call_execute(True, pc, runtime)
+# -----------------------------------------------------------------
+class Return(Instruction):
+    def execute(self, pc, runtime):
+        pass
 # -----------------------------------------------------------------
 # Sets/Lists
 # -----------------------------------------------------------------
@@ -160,13 +189,22 @@ class CmpLT(Instruction):
 # -----------------------------------------------------------------
 class ParExecBegin(Instruction):
 
+    def __init__(self, term, join = True):
+        super().__init__(term)
+        self.join = join
+
     def __repr__(self):
         return "{}\t{}".format(self.__class__.__name__, self.term)
 
     def execute(self, pc, runtime):
+        #print(self.__class__,self.term)
         func = self.term
         agent_set = runtime._get_var('__agentset__')
-        agent_set = func(agent_set)
+        if type(func) == types.TupleType:
+            (func, params) = func
+            agent_set = func(agent_set, params)
+        else:
+            agent_set = func(agent_set)
         print(agent_set)
 
 # -----------------------------------------------------------------

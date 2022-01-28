@@ -8,12 +8,19 @@ agentset ( { name : "main_agent", role : "leader" },
            { name : "another", role : "follower" },
            { name : "another_one", role : "follower" } );
 
+environment ( { center : 0 } );
+
 attributes ( variable );
 
 behaviour test {
   with all {
     print("hello");
   }
+}
+
+function my_fun(a,b,c) {
+    var x = a*b+c;
+    return x;
 }
 
 behaviour main {
@@ -37,12 +44,15 @@ behaviour main {
   }
   #
   with all {
-    print(this.object, this.variable);
-    var a = 0;
-    while (a < 10) {
-      print(this.name, a);
-      a = a + 1;
-    }
+      print("final", this.variable);
+      var a = 0;
+      while (a < 10) {
+          print(this.name, a);
+          a = a + 1;
+      }
+  }
+  with one {
+      var x = my_fun(1,2,3);
   }
 }
 

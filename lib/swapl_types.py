@@ -66,6 +66,14 @@ class Set:
     def all(self):
         return self
 
+    def roles(self, uRoleList):
+        selected = [ ]
+        for a in self.data:
+            if a.get_field('role') in uRoleList:
+                selected.append(a)
+
+        return Set(selected)
+
     def all_but(self, term):
         return self - term
 
@@ -77,6 +85,9 @@ class OrderedSet(Set):
 
     def __repr__(self):
         return repr(self.data)
+
+    def __getitem__(self, idx):
+        return self.get_item(idx)
 
     def union(self, other):
         data = self._mklist(other)
@@ -122,7 +133,10 @@ class StructData:
         self.data[uName] = uVal
 
     def get_field(self, uName):
-        return self.data[uName]
+        try:
+            return self.data[uName]
+        except KeyError:
+            return None
 
 # -----------------------------------------------------------------
 

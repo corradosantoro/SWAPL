@@ -1,0 +1,36 @@
+
+model "vtol_uav";
+
+roleset ( { name : "leader" },
+          { name : "follower" } );
+
+agentset ( { name : "one", role : "leader" },
+           { spawn : 10, role : "follower" } );
+
+behaviour main {
+  with roles("leader") {
+    this.vx = 0;
+    this.vy = 0;
+    this.z = 2;
+    while (1) {
+      wait(1);
+      this.wz = rand(0, 2);
+    }
+  }
+  |
+  with roles("follower") {
+    this.x = rand(0, 100);
+    this.y = rand(0, 100);
+    this.z = 2;
+    var leader = role("leader");
+    while (1) {
+      var dx = leader.x - this.x;
+      var dy = leader.y - this.y;
+      #var hdg_difference = atan2(dy, dx)  - this.yaw;
+      #this.wz = hdg_difference * 180.0/3.14159 * 20;
+      this.wz = 0.1;
+      wait(0.1);
+    }
+  }
+}
+

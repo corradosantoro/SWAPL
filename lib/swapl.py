@@ -17,6 +17,7 @@ from swapl_exceptions import *
 from swapl_types import *
 from swapl_isa import *
 from swapl_env import *
+from swapl_www import *
 
 _pgm = None
 
@@ -29,12 +30,38 @@ precedence = (
 
 # Parsing rules
 
-def p_program(t):
-    ' program : agent_model role_set agent_set agent_attr_set b_bodies '
+def p_program_1(t):
+    ' program : agent_model role_set agent_set program_opts b_bodies '
     global _pgm
     bg = SWAPL_Behaviour( SWAPL_Program.GLOBALS, [ t[2] + t[3] + t[4] ] )
     _pgm = SWAPL_Program( t[5] + [ bg ] )
     _pgm.set_agent_model(t[1])
+
+def p_program_2(t):
+    ' program : agent_model role_set agent_set b_bodies '
+    global _pgm
+    bg = SWAPL_Behaviour( SWAPL_Program.GLOBALS, [ t[2] + t[3] ] )
+    _pgm = SWAPL_Program( t[4] + [ bg ] )
+    _pgm.set_agent_model(t[1])
+
+# ------------------------------------------------------
+def p_program_options_1(t):
+    ' program_opts : program_opt '
+    t[0] = t[1]
+
+def p_program_options_2(t):
+    ' program_opts : program_opt program_opts '
+    t[0] = t[1] + t[2]
+
+# ------------------------------------------------------
+def p_program_option_1(t):
+    ' program_opt : agent_attr_set '
+    t[0] = t[1]
+
+# ------------------------------------------------------
+def p_program_option_2(t):
+    ' program_opt : environment_def '
+    t[0] = t[1]
 
 # ------------------------------------------------------
 
@@ -82,6 +109,14 @@ def p_agent_attr_set(t):
     (count, pgm) = t[2]
     t[0] = pgm + [ MkSet(count), Store(SWAPL_Program.AGENTATTRSET) ]
 
+# ------------------------------------------------------
+# environment_def
+# ------------------------------------------------------
+def p_environment_def(t):
+    ' environment_def : ENVIRONMENT LPAREN role_set_statement RPAREN SEMICOLON '
+    (count, pgm) = t[3]
+    t[0] = pgm + [ MkSet(count), Store(SWAPL_Program.ENVIRONMENT) ]
+
 
 # ------------------------------------------------------
 def p_literal_listset(t):
@@ -106,10 +141,27 @@ def p_b_bodies_2(t):
     ' b_bodies : b_body '
     t[0] = t[1]
 
-def p_b_body(t):
+def p_b_body_1(t):
     ' b_body : BEHAVIOUR NAME BEGIN with_list END'
     t[0] = [ SWAPL_Behaviour(t[2], t[4]) ]
 
+
+def p_b_body_2(t):
+    ' b_body : FUNCTION NAME LPAREN names_list RPAREN BEGIN statements END'
+    #print('Function', t[2], t[4])
+    t[0] = [ SWAPL_Function(t[2], t[4], t[7]) ]
+
+
+# ------------------------------------------------------
+# names list
+# ------------------------------------------------------
+def p_names_list_1(t):
+    ' names_list : NAME COMMA names_list '
+    t[0] = [ t[1] ] + t[3]
+
+def p_name_list_2(t):
+    ' names_list : NAME '
+    t[0] = [ t[1] ]
 
 # ------------------------------------------------------
 # assignment
@@ -145,9 +197,13 @@ def p_with_list_2(t):
 # ------------------------------------------------------
 # with block
 # ------------------------------------------------------
-def p_with_block(t):
+def p_with_block_1(t):
     ' with_block : WITH with_set BEGIN statements END '
     t[0] = [ ParExecBegin(t[2]) ] + t[4] + [ ParExecEnd() ]
+
+def p_with_block_2(t):
+    ' with_block : WITH with_set BEGIN statements END PIPE '
+    t[0] = [ ParExecBegin(t[2], False) ] + t[4] + [ ParExecEnd() ]
 
 # ------------------------------------------------------
 # with set
@@ -159,6 +215,19 @@ def p_with_set_1(t):
 def p_with_set_2(t):
     ' with_set : ONE '
     t[0] = Set.one
+
+def p_with_set_3(t):
+    ' with_set : ROLES LPAREN string_list RPAREN '
+    t[0] = (Set.roles, t[3])
+
+# ------------------------------------------------------
+def p_string_list_1(t):
+    ' string_list : STRING '
+    t[0] = [ t[1] ]
+
+def p_string_list_2(t):
+    ' string_list : string_list COMMA STRING '
+    t[0] = t[1] + [ t[2] ]
 
 # ------------------------------------------------------
 # statements
@@ -173,18 +242,34 @@ def p_statements_2(t):
 
 def p_statement(t):
     ''' statement : assign
-                  | funcall
+                  | proccall
+                  | returnstmt
                   | if_block
                   | while_block'''
     t[0] = t[1]
 
 # ------------------------------------------------------
-# funcall
+# proccall
 # ------------------------------------------------------
-def p_funcall(t):
-    ' funcall : NAME list_set_statement SEMICOLON '
+def p_proc_call(t):
+    ' proccall : NAME list_set_statement SEMICOLON '
     (count, pgm) = t[2]
     t[0] = pgm + [ MkOrdSet(count), Call(t[1]) ]
+
+# ------------------------------------------------------
+# funcall
+# ------------------------------------------------------
+def p_fun_call(t):
+    ' funcall : NAME list_set_statement '
+    (count, pgm) = t[2]
+    t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
+
+# ------------------------------------------------------
+# returnstmt
+# ------------------------------------------------------
+def p_returnstmt(t):
+    ' returnstmt : RETURN expr SEMICOLON '
+    t[0] = t[2] + [ Return() ]
 
 # ------------------------------------------------------
 # if
@@ -299,6 +384,10 @@ def p_nameval(t):
     t[0] = ( [ t[1] ], t[3] )
 
 # ------------------------------------------------------
+def p_fun_expr(t):
+    'expr : funcall'
+    t[0] = t[1]
+
 def p_val_expr(t):
     'expr : NAME'
     t[0] = [ Load(t[1]) ]
@@ -314,6 +403,14 @@ def p_string_expr(t):
 def p_field_expr(t):
     'expr : NAME DOT NAME'
     t[0] = [ GetField( (t[1], t[3]) ) ]
+
+def p_true_expr(t):
+    'expr : TRUE'
+    t[0] = [ Push(1) ]
+
+def p_false_expr(t):
+    'expr : FALSE'
+    t[0] = [ Push(0) ]
 
 # ------------------------------------------------------
 
@@ -333,19 +430,23 @@ opt_parser.add_option("-v", "--version", action="store_true",
 opt_parser.add_option("-s", "--disasm", action="store_true",
                       dest="disasm", default=False,
                       help="show assembly info")
+opt_parser.add_option("-p", "--port",
+                      dest="server_port",
+                      default = None,
+                      help="show assembly info")
 (options, args) = opt_parser.parse_args()
 if options.version:
     print("SWAPL - SWarm Agent Programming Language\nScripting system version {}.{}".format(VERSION_MAJOR, VERSION_MINOR))
     sys.exit(0)
 if len(args) != 1:
     opt_parser.error("incorrect number of arguments")
+filename = 1
 if options.disasm:
-    filename = sys.argv[2]
-else:
-    filename = sys.argv[1]
+    filename += 1
+if options.server_port is not None:
+    filename += 2
 
-
-fp = open(filename)
+fp = open(sys.argv[filename])
 contents = fp.read()
 result = parser.parse(contents)
 fp.close()
@@ -353,5 +454,12 @@ fp.close()
 if options.disasm:
     _pgm.disasm()
 else:
+    if options.server_port is not None:
+        SWAPLHttpRequestHandler.program = _pgm
+        SWAPLHttpServer(int(options.server_port)).start()
     _pgm.run()
+    if options.server_port is not None:
+        while True:
+            import time
+            time.sleep(1)
 

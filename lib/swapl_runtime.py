@@ -47,12 +47,12 @@ class SWAPL_Heap:
 # -----------------------------------------------------------------
 class SWAPL_Runtime:
 
-    def __init__(self, uHeap, uBehaviour, uParams = { 'stacksize' : 50 }):
+    def __init__(self, uProgram, uHeap, uBehaviour, uParams = { 'stacksize' : 50 }):
+        self.program = uProgram
         self.stacksize = uParams['stacksize']
         self.heap = uHeap
         self.clear_stack()
         self.behaviour = uBehaviour
-        #self.bifs = { 'swapl_print' : swapl_print }
         self.agent = None
 
     def __repr__(self):
@@ -94,7 +94,7 @@ class SWAPL_Runtime:
 
     def _get_var(self, uVar):
         if uVar == 'this':
-            return self.agent
+            return self.agent_object
         else:
             return self.heap.get_var(uVar)
 
