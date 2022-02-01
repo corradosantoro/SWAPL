@@ -334,6 +334,10 @@ def p_lt(t):
     'expr : expr LT expr'
     t[0] = t[1] + t[3] + [ CmpLT() ]
 
+def p_gt(t):
+    'expr : expr GT expr'
+    t[0] = t[1] + t[3] + [ CmpGT() ]
+
 def p_expression_group(t):
     'expr : LPAREN expr RPAREN'
     t[0] = t[2]

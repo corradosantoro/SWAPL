@@ -94,7 +94,7 @@ class Call(Instruction):
             return None
         else:
             from swapl_runtime import SWAPL_Runtime, SWAPL_Heap
-            heap = SWAPL_Heap()
+            heap = SWAPL_Heap(runtime.get_heap())
             params = f.get_params()
             i = len(params) - 1
             while i >= 0:
@@ -184,6 +184,11 @@ class CmpLT(Instruction):
     def execute(self, pc, runtime):
         (v1, v2) = runtime.pop2()
         runtime.push(v2 < v1)
+# -----------------------------------------------------------------
+class CmpGT(Instruction):
+    def execute(self, pc, runtime):
+        (v1, v2) = runtime.pop2()
+        runtime.push(v2 > v1)
 # -----------------------------------------------------------------
 # Parallel Exec
 # -----------------------------------------------------------------

@@ -30,8 +30,8 @@ class Agent(SWAPL_Agent):
 
             self.heading = self.heading + self.w * self.delta_t
 
-            self.vx = self.v * math.cos(math.radians(self.heading))
-            self.vy = self.v * math.sin(math.radians(self.heading))
+            self.vx = self.v * math.cos(self.heading)
+            self.vy = self.v * math.sin(self.heading)
 
             self.x += self.vx * self.delta_t
             self.y += self.vy * self.delta_t

@@ -42,6 +42,7 @@ tokens = list(reserved.values()) + ['SEMICOLON',
                                     'EQUAL',
                                     'EEQUAL',
                                     'LT',
+                                    'GT',
                                     'PLUS',
                                     'MINUS',
                                     'TIMES',
@@ -64,6 +65,7 @@ t_DIVIDE     = r'/'
 t_EQUAL      = r'='
 t_EEQUAL     = r'=='
 t_LT         = r'<'
+t_GT         = r'>'
 t_LPAREN     = r'\('
 t_RPAREN     = r'\)'
 t_COLON      = r':'
