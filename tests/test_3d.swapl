@@ -26,9 +26,9 @@ behaviour main {
     while (1) {
       var dx = leader.x - this.x;
       var dy = leader.y - this.y;
-      #var hdg_difference = atan2(dy, dx)  - this.yaw;
+      var hdg_difference = atan2(dy, dx)  - this.yaw;
       #this.wz = hdg_difference * 180.0/3.14159 * 20;
-      this.wz = 0.1;
+      this.wz = hdg_difference * 0.05;
       wait(0.1);
     }
   }
