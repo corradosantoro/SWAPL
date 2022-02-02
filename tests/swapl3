@@ -2,4 +2,4 @@
 #
 
 export PYTHONPATH=../lib:$PYTHONPATH
-python ../lib/swapl.py $*
+python3 ../lib/swapl.py $*

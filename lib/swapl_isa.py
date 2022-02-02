@@ -103,6 +103,7 @@ class Call(Instruction):
                 heap.set_var(params[i], values[i])
                 i -= 1
             new_runtime = SWAPL_Runtime(runtime.get_program(), heap, f.get_code())
+            new_runtime.set_agent_object(runtime.get_agent_object())
             ret_val = new_runtime.run()
             heap = heap.pop()
             if ret_val is not None:

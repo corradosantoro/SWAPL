@@ -108,6 +108,9 @@ class SWAPL_Runtime:
     def get_agent_object(self):
         return self.agent_object
 
+    def set_agent_object(self, ob):
+        self.agent_object = ob
+
     def _mk_var(self, uVar):
         return self.heap.make_var(uVar)
 
