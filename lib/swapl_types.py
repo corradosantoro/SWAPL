@@ -140,6 +140,21 @@ class StructData:
 
 # -----------------------------------------------------------------
 
+import math
+
+class PythonLink:
+
+        def __init__(self, link):
+            self.link = link
+
+        def __repr__(self):
+            return "@pythonlink %s" % (self.link)
+
+        def eval_as_attribute(self):
+            return eval(self.link)
+
+# -----------------------------------------------------------------
+
 if __name__ == "__main__":
 
     s1 = Set()

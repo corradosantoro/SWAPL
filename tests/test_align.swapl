@@ -7,11 +7,12 @@ roleset ( { name : "leader" },
 agentset ( { name : "leader", role : "leader" },
            { spawn : 8, role : "follower" } );
 
-#var Math = { pi : @pythonlink("math.pi") };
+var Math = { pi : @pythonlink "math.pi",
+             fabs : @pythonlink "math.fabs" };
 
 function normalize(angle) {
-  while (angle > 3.14159) angle = angle - 2*3.14159;
-  while (angle < -3.14159) angle = angle + 2*3.14159;
+  while (angle > Math.pi) angle = angle - 2*Math.pi;
+  while (angle < -Math.pi) angle = angle + 2*Math.pi;
   return angle;
 }
 
@@ -22,7 +23,7 @@ function line_for_point(m, x, y) {
 
 function distance_from_line(line, x, y) {
     var num = y - (line.m * x + line.q);
-    if (num < 0) num = -num;
+    #num = Math.fabs(num);
 }
 
 behaviour main {
@@ -49,7 +50,7 @@ behaviour main {
       this.w = k_hdg * hdg_difference;
 
       # rule 2 cohesion
-      var formation_line_hdg = normalize(leader.heading + 3.14159/2);
+      var formation_line_hdg = normalize(leader.heading + Math.pi/2);
       var line = line_for_point(formation_line_hdg, leader.x, leader.y);
       #print(line);
 

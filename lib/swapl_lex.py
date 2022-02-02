@@ -27,6 +27,7 @@ reserved = {
     'false' : 'FALSE',
     'function' : 'FUNCTION',
     'return' : 'RETURN',
+    '@pythonlink' : 'PYTHONLINK',
     # 'uavset' : 'UAVSET',
     # 'fun' : 'FUN',
     # 'roles' : 'ROLES',

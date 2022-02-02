@@ -154,7 +154,11 @@ class GetField(Instruction):
     def execute(self, pc, runtime):
         ( var, field ) = self.term
         obj = runtime._get_var(var)
-        runtime.push(obj.get_field(field))
+        f = obj.get_field(field)
+        if isinstance(f, PythonLink):
+            runtime.push(f.eval_as_attribute())
+        else:
+            runtime.push(f)
 # -----------------------------------------------------------------
 class SetField(Instruction):
     def execute(self, pc, runtime):

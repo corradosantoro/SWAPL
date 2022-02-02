@@ -6,6 +6,8 @@
 import sys
 import os
 
+import math
+
 from optparse import *
 
 VERSION_MAJOR = 0
@@ -264,10 +266,16 @@ def p_proc_call(t):
 # ------------------------------------------------------
 # funcall
 # ------------------------------------------------------
-def p_fun_call(t):
+def p_fun_call_1(t):
     ' funcall : NAME list_set_statement '
     (count, pgm) = t[2]
     t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
+
+# ------------------------------------------------------
+def p_fun_call_2(t):
+    ' funcall : NAME DOT NAME list_set_statement '
+    (count, pgm) = t[4]
+    t[0] = pgm + [ MkOrdSet(count), FunCall( (t[1], t[3]) ) ]
 
 # ------------------------------------------------------
 # returnstmt
@@ -396,6 +404,10 @@ def p_nameval(t):
 def p_fun_expr(t):
     'expr : funcall'
     t[0] = t[1]
+
+def p_pythonlink(t):
+    'expr : PYTHONLINK STRING'
+    t[0] = [ Push(PythonLink(t[2])) ]
 
 def p_val_expr(t):
     'expr : NAME'

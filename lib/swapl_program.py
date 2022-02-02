@@ -42,7 +42,10 @@ class SWAPL_Program:
         self.globals_heap.make_var(SWAPL_Program.AGENTATTRSET)
         self.globals_heap.make_var(SWAPL_Program.ENVIRONMENT)
 
-        self.behaviours[SWAPL_Program.GLOBALS].run_simple(self, self.globals_heap)
+        self.behaviours[SWAPL_Program.GLOBALS].run_simple(self, self.globals_heap, True)
+
+        #print(self.globals_heap)
+        #sys.exit(1)
 
         self.create_agents()
 
@@ -50,9 +53,9 @@ class SWAPL_Program:
 
         #self.globals_runtime = SWAPL_Runtime(self, self.globals_heap, self.behaviours[SWAPL_Program.GLOBALS])
         #self.globals_runtime.run_simple()
-        #print(self.globals_heap)
         #self.main = SWAPL_Runtime(self, self.globals_heap, self.behaviours['main'])
         #self.main.run()
+
 
     def create_agents(self):
         ag_set = self.globals_heap.get_var(SWAPL_Program.AGENTSET)
@@ -127,13 +130,17 @@ class SWAPL_Behaviour:
     def get_name(self):
         return self.name
 
-    def run_simple(self, program, heap):
+    def run_simple(self, program, heap, do_not_push):
         for w in self.with_blocks:
             #
-            new_heap = heap.push()
+            if do_not_push:
+                new_heap = heap
+            else:
+                new_heap = heap.push()
             runtime = SWAPL_Runtime(program, new_heap, w)
             runtime.run()
-            new_heap.pop()
+            if not(do_not_push):
+                new_heap.pop()
             #
         return heap
 
