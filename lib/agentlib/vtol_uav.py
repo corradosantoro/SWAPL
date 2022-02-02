@@ -22,11 +22,12 @@ class Agent(SWAPL_Agent):
         self.roll = 0
         self.pitch = 0
         self.yaw = 0
+        self.heading = 0
         self.delta_t = 0.01
         self.image = 'arrow.png'
         self.export_field( [ 'x', 'y', 'z',
                              'vx', 'vy', 'vz', 'wz',
-                             'roll', 'pitch', 'yaw',
+                             'roll', 'pitch', 'yaw', 'heading',
                              'delta_t', 'image' ] )
         self.run_thread()
 
@@ -35,6 +36,7 @@ class Agent(SWAPL_Agent):
             time.sleep(self.delta_t)
 
             self.yaw = normalize_angle_radians(self.yaw + self.wz * self.delta_t)
+            self.heading = self.yaw
 
             self.x += self.vx * self.delta_t
             self.y += self.vy * self.delta_t

@@ -1,0 +1,37 @@
+/*
+ * title.css
+ */
+
+#title {
+   position: absolute;
+   top: 0px;
+   left: 20px;
+   right: 20px;
+   height: 60px;
+   color: #fff;
+   background-image: linear-gradient(to bottom, #353535 0%, #2f2f2f 51%, #232323 100%);
+   font-size: 16px;
+   border: 2px solid;
+   border-radius: 8px;
+   border-color: #000;
+ }
+
+#logo-box {
+   position: absolute;
+   top: -7px;
+   left: 1px;
+   width: 80px;
+}
+
+#title-label {
+   position: absolute;
+   top: 1px;
+   left: 114px;
+   right: 32px;
+   font-size: 32px;
+   font-weight: bold;
+   padding-top: 8px;
+   padding-left: 8px;
+   text-align: center;
+}
+

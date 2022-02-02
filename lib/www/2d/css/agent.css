@@ -1,0 +1,54 @@
+/*
+ * agent.css
+ */
+
+#agent {
+   position: absolute;
+   top: 62px;
+   left: 20px;
+   height: 200px;
+   width: 300px;
+   color: #fff;
+   background-image: linear-gradient(to bottom, #353535 0%, #2f2f2f 51%, #232323 100%);
+   font-size: 16px;
+   border: 2px solid;
+   border-radius: 8px 0px 8px 8px;
+   border-color: #000;
+ }
+
+.agent-list-label {
+   position: absolute;
+   top: 10px;
+   left: 10px;
+   color: #ff0;
+   font-size: 16px;
+   font-weight: bold;
+ }
+
+.agent-list {
+   position: absolute;
+   left: 10px;
+   top: 34px;
+   width: 270px;
+   height: 154px;
+   background-color: #222222;
+   text-align: left;
+   border: 2px solid;
+   border-color: #272727;
+   overflow-y: scroll;
+}
+
+.agent-list-item {
+   display: inline-block;
+   font-size: 14px;
+   color: #cff;
+   background-color: #222222;
+   width: 255px;
+   height: 30px;
+   line-height:30px;
+   vertical-align: middle;
+   /*border-top: 1px dotted;
+   border-bottom: 1px dotted;
+   border-color: #888;*/
+   white-space: nowrap;
+ }

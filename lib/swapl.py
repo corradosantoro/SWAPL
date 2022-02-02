@@ -16,7 +16,7 @@ from swapl_lex import *
 from swapl_exceptions import *
 from swapl_types import *
 from swapl_isa import *
-from swapl_env import *
+from swapl_program import *
 from swapl_www import *
 
 _pgm = None
@@ -333,6 +333,10 @@ def p_eequal(t):
 def p_lt(t):
     'expr : expr LT expr'
     t[0] = t[1] + t[3] + [ CmpLT() ]
+
+def p_gt(t):
+    'expr : expr GT expr'
+    t[0] = t[1] + t[3] + [ CmpGT() ]
 
 def p_expression_group(t):
     'expr : LPAREN expr RPAREN'

@@ -5,7 +5,7 @@
 from swapl_exceptions import *
 from swapl_types import *
 from swapl_isa import *
-from swapl_runtime import *
+from swapl_codelet import *
 
 import threading
 import time
@@ -86,7 +86,7 @@ class SWAPL_Agent:
         return random.uniform(terms[0], terms[1])
 
     def swapl_role(self, terms):
-        from swapl_env import SWAPL_Program
+        from swapl_program import SWAPL_Program
         ag_set = self.program.globals_environment.get_var(SWAPL_Program.AGENTSET)
         return ag_set.roles(terms).one().data[0]['object']
 
