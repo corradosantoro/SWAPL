@@ -1,0 +1,60 @@
+
+model "base_agent";
+
+roleset ( { name : "leader" },
+          { name : "follower" } );
+
+agentset ( { name : "leader", role : "leader" },
+           { spawn : 8, role : "follower" } );
+
+#var Math = { pi : @pythonlink("math.pi") };
+
+function normalize(angle) {
+  while (angle > 3.14159) angle = angle - 2*3.14159;
+  while (angle < -3.14159) angle = angle + 2*3.14159;
+  return angle;
+}
+
+function line_for_point(m, x, y) {
+    var q = y - m * x;
+    return { m : m,  q: q};
+}
+
+function distance_from_line(line, x, y) {
+    var num = y - (line.m * x + line.q);
+    if (num < 0) num = -num;
+}
+
+behaviour main {
+  with roles("leader") {
+    this.x = 300;
+    this.y = 300;
+    this.heading = 3.14159/4.0;
+    this.image = "arrow_red.png";
+    while (1) {
+      wait(5);
+      this.heading = normalize(rand(0, 2*3.14159));
+    }
+  }
+  |
+  with roles("follower") {
+    this.x = 300 + rand(-100, 100);
+    this.y = 300 + rand(-100, 100);
+    this.heading = rand(0, 3);
+    var leader = role("leader");
+    while (1) {
+      # rule 1 alignment
+      var k_hdg = 1.5;
+      var hdg_difference = normalize(leader.heading - this.heading);
+      this.w = k_hdg * hdg_difference;
+
+      # rule 2 cohesion
+      var formation_line_hdg = normalize(leader.heading + 3.14159/2);
+      var line = line_for_point(formation_line_hdg, leader.x, leader.y);
+      #print(line);
+
+      wait(0.1);
+    }
+  }
+}
+
