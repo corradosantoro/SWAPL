@@ -93,17 +93,20 @@ class Call(Instruction):
                 proc(*args)
             return None
         else:
-            from swapl_runtime import SWAPL_Runtime, SWAPL_Heap
-            heap = SWAPL_Heap(runtime.get_heap())
+            from swapl_codelet import SWAPL_Runtime, SWAPL_Heap
+            heap = runtime.get_heap().push()
             params = f.get_params()
             i = len(params) - 1
+            values = runtime.pop()
             while i >= 0:
                 heap.make_var(params[i])
-                heap.set_var(params[i], runtime.pop())
+                heap.set_var(params[i], values[i])
                 i -= 1
-            new_runtime = SWAPL_Runtime(f.get_code(), heap, runtime.behaviour)
-            new_runtime.run()
-        #runtime.call(self.term)
+            new_runtime = SWAPL_Runtime(runtime.get_program(), heap, f.get_code())
+            ret_val = new_runtime.run()
+            heap = heap.pop()
+            if ret_val is not None:
+                runtime.push(ret_val)
 
     def execute(self, pc, runtime):
         self.fun_call_execute(False, pc, runtime)
@@ -114,7 +117,8 @@ class FunCall(Call):
 # -----------------------------------------------------------------
 class Return(Instruction):
     def execute(self, pc, runtime):
-        pass
+        ret_val = runtime.pop()
+        return ret_val
 # -----------------------------------------------------------------
 # Sets/Lists
 # -----------------------------------------------------------------
@@ -205,7 +209,7 @@ class ParExecBegin(Instruction):
         #print(self.__class__,self.term)
         func = self.term
         agent_set = runtime._get_var('__agentset__')
-        if type(func) == types.TupleType:
+        if type(func) == tuple:
             (func, params) = func
             agent_set = func(agent_set, params)
         else:

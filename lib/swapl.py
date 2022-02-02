@@ -16,7 +16,7 @@ from swapl_lex import *
 from swapl_exceptions import *
 from swapl_types import *
 from swapl_isa import *
-from swapl_env import *
+from swapl_program import *
 from swapl_www import *
 
 _pgm = None

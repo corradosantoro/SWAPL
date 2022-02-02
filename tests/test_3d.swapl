@@ -14,7 +14,7 @@ behaviour main {
     this.z = 2;
     while (1) {
       wait(1);
-      this.wz = rand(0, 2);
+      this.wz = 0;
     }
   }
   |
@@ -28,7 +28,7 @@ behaviour main {
       var dy = leader.y - this.y;
       var hdg_difference = atan2(dy, dx)  - this.yaw;
       #this.wz = hdg_difference * 180.0/3.14159 * 20;
-      this.wz = hdg_difference * 0.05;
+      this.wz = 0;#hdg_difference * 0.05;
       wait(0.1);
     }
   }

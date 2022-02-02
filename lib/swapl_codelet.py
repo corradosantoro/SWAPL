@@ -1,8 +1,9 @@
 # -----------------------------------------------------------------------------
-# swapl_runtime.py
+# swapl_codelet.py
 # -----------------------------------------------------------------------------
 
 from swapl_exceptions import *
+from swapl_isa import *
 
 # -----------------------------------------------------------------------------
 class SWAPL_Heap:
@@ -23,6 +24,14 @@ class SWAPL_Heap:
             cloned.heap[k] = self.heap[k]
         return cloned
 
+    def push(self):
+        h = SWAPL_Heap(self)
+        return h
+
+    def pop(self):
+        return self.get_parent()
+
+    # ---------------------------------
     def make_var(self, name):
         self.heap[name] = None
 
@@ -47,12 +56,12 @@ class SWAPL_Heap:
 # -----------------------------------------------------------------
 class SWAPL_Runtime:
 
-    def __init__(self, uProgram, uHeap, uBehaviour, uParams = { 'stacksize' : 50 }):
+    def __init__(self, uProgram, uHeap, uCode, uParams = { 'stacksize' : 50 }):
         self.program = uProgram
         self.stacksize = uParams['stacksize']
         self.heap = uHeap
         self.clear_stack()
-        self.behaviour = uBehaviour
+        self.code = uCode
         self.agent = None
 
     def __repr__(self):
@@ -61,10 +70,17 @@ class SWAPL_Runtime:
                                                        r(self.heap))
 
     def run(self):
-        self.behaviour.run(self)
-
-    def run_no_parallel(self):
-        self.behaviour.run_no_parallel(self)
+        pc = 0
+        while (pc < len(self.code)):
+            instr = self.code[pc]
+            target = instr.execute(pc, self)
+            if isinstance(instr, Return):
+                return target
+            if target is not None:
+                pc = target
+            else:
+                pc += 1
+        return None
 
     def push_heap(self):
         h = SWAPL_Heap(self.heap)
@@ -82,6 +98,9 @@ class SWAPL_Runtime:
     def set_agent(self, ag):
         self.agent = ag
         self.agent_object = ag.get_field('object')
+
+    def get_program(self):
+        return self.program
 
     def get_agent(self):
         return self.agent
