@@ -184,6 +184,11 @@ class Div(Instruction):
         (v1, v2) = runtime.pop2()
         runtime.push(v2 / v1)
 # -----------------------------------------------------------------
+class Neg(Instruction):
+    def execute(self, pc, runtime):
+        v1 = runtime.pop()
+        runtime.push(- v1)
+# -----------------------------------------------------------------
 class CmpLT(Instruction):
     def execute(self, pc, runtime):
         (v1, v2) = runtime.pop2()
@@ -214,7 +219,7 @@ class ParExecBegin(Instruction):
             agent_set = func(agent_set, params)
         else:
             agent_set = func(agent_set)
-        print(agent_set)
+        #print(agent_set)
 
 # -----------------------------------------------------------------
 class ParExecEnd(Instruction):

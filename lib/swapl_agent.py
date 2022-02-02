@@ -87,7 +87,7 @@ class SWAPL_Agent:
 
     def swapl_role(self, terms):
         from swapl_program import SWAPL_Program
-        ag_set = self.program.globals_environment.get_var(SWAPL_Program.AGENTSET)
+        ag_set = self.program.globals_heap.get_var(SWAPL_Program.AGENTSET)
         return ag_set.roles(terms).one().data[0]['object']
 
     def swapl_atan2(self, terms):

@@ -71,5 +71,6 @@ class SWAPLHttpServer(threading.Thread):
 
     def run(self):
         Handler = SWAPLHttpRequestHandler
+        socketserver.TCPServer.allow_reuse_address = True
         httpd = socketserver.TCPServer(("", self.port), Handler)
         httpd.serve_forever()

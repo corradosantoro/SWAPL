@@ -20,7 +20,7 @@ class Agent(SWAPL_Agent):
         self.v = 0
         self.w = 0
         self.delta_t = 0.01
-        self.image = 'arrow.png'
+        self.image = 'arrow_white.png'
         self.export_field( [ 'x', 'y', 'vx', 'vy', 'heading', 'v', 'w', 'delta_t', 'image' ] )
         self.run_thread()
 

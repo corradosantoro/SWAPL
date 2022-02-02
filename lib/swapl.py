@@ -64,6 +64,11 @@ def p_program_option_2(t):
     t[0] = t[1]
 
 # ------------------------------------------------------
+def p_program_option_3(t):
+    ' program_opt : assign '
+    t[0] = t[1]
+
+# ------------------------------------------------------
 
 def p_agent_model(t):
     ' agent_model : MODEL STRING SEMICOLON '
@@ -308,7 +313,7 @@ def p_while(t):
 
 def p_uminus_expr(t):
     'expr : MINUS expr %prec UMINUS'
-    #t[0] = ("-", t[2])
+    t[0] = t[2] + [ Neg() ]
 
 def p_p_expr(t):
     'expr : expr PLUS expr'
