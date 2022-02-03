@@ -5,15 +5,19 @@ roleset ( { name : "leader" },
           { name : "follower" } );
 
 agentset ( { name : "leader", role : "leader" },
-           { spawn : 8, role : "follower" } );
+           { spawn : 10, role : "follower" } );
 
 var Math = { pi : @pythonlink "math.pi",
-             fabs : @pythonlink "math.fabs" };
+             fabs : @pythonlink "math.fabs",
+             sqrt : @pythonlink "math.sqrt",
+             atan2 : @pythonlink "math.atan2" };
+
+var THRESHOLD = Math.pi / 6;
 
 function normalize(angle) {
-  while (angle > Math.pi) angle = angle - 2*Math.pi;
-  while (angle < -Math.pi) angle = angle + 2*Math.pi;
-  return angle;
+    while (angle > Math.pi) angle = angle - 2*Math.pi;
+    while (angle < -Math.pi) angle = angle + 2*Math.pi;
+    return angle;
 }
 
 function line_for_point(m, x, y) {
@@ -22,8 +26,9 @@ function line_for_point(m, x, y) {
 }
 
 function distance_from_line(line, x, y) {
-    var num = y - (line.m * x + line.q);
-    #num = Math.fabs(num);
+    var num = Math.fabs(y - (line.m * x + line.q));
+    var den = Math.sqrt(1 + line.m * line.m);
+    return num / den;
 }
 
 behaviour main {
@@ -44,15 +49,29 @@ behaviour main {
     this.heading = rand(0, 3);
     var leader = role("leader");
     while (1) {
-      # rule 1 alignment
       var k_hdg = 1.5;
-      var hdg_difference = normalize(leader.heading - this.heading);
-      this.w = k_hdg * hdg_difference;
+      var k_v = 5;
+
+      # rule 1 alignment
+      var align_difference = normalize(leader.heading - this.heading);
+      this.w = k_hdg * align_difference;
 
       # rule 2 cohesion
       var formation_line_hdg = normalize(leader.heading + Math.pi/2);
       var line = line_for_point(formation_line_hdg, leader.x, leader.y);
-      #print(line);
+      var d = distance_from_line(line, this.x, this.y);
+
+      var dx = leader.x - this.x;
+      var dy = leader.y - this.y;
+      var hdg_difference = normalize(formation_line_hdg - Math.atan2(dy, dx));
+
+      #print(align_difference, Math.fabs(align_difference), THRESHOLD);
+      var v = 0;
+      if (Math.fabs(align_difference) < THRESHOLD) {
+          v = k_v * hdg_difference;
+          #print(line, d, align_difference, hdg_difference, v);
+      }
+      this.v = v;
 
       wait(0.1);
     }

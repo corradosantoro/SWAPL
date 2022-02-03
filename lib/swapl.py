@@ -313,7 +313,7 @@ def p_while(t):
     ' while_block : WHILE LPAREN expr RPAREN then_else_statement '
     to_skip = len(t[5])
     jump_target = to_skip + 1 + len(t[3]) + 1
-    t[0] = t[3] + [ Skip( (Skip.EQ, to_skip + 1) ) ] + t[5] + \
+    t[0] = t[3] + [ Skip( (Skip.NEQ, to_skip + 1) ) ] + t[5] + \
       [ Skip( (Skip.UNCONDITIONAL, -jump_target) ) ]
 # ------------------------------------------------------
 # expressions

@@ -72,16 +72,30 @@ class Skip(Instruction):
         ( comparison, instr_to_skip) = self.term
         if (comparison == Skip.UNCONDITIONAL):
             return pc + instr_to_skip + 1
-        val = runtime.pop()
-        if (comparison == Skip.EQ)and(val == 0):
+        val = int(runtime.pop())
+        #print(comparison, val, instr_to_skip)
+        if (comparison == Skip.EQ)and(val == 1):
             return pc + instr_to_skip + 1
-        elif (comparison == Skip.NEQ)and(val != 0):
+        elif (comparison == Skip.NEQ)and(val == 0):
             return pc + instr_to_skip + 1
         else:
             return None
 # -----------------------------------------------------------------
 class Call(Instruction):
     def fun_call_execute(self, isfun, pc, runtime):
+        if type(self.term) == tuple:
+            (var, field) = self.term
+            obj = runtime._get_var(var)
+            f = obj.get_field(field)
+            if isinstance(f, PythonLink):
+                func = f.eval_as_attribute()
+                values = runtime.pop()
+                args = values.items()
+                ret = func(*args)
+                runtime.push(ret)
+                return None
+            else:
+                raise UndefinedFunctionException()
         f = runtime.program.get_function(self.term)
         if f is None:
             ( proc, arity ) = runtime.get_agent_object().get_method(self.term)
@@ -202,7 +216,8 @@ class CmpLT(Instruction):
 class CmpGT(Instruction):
     def execute(self, pc, runtime):
         (v1, v2) = runtime.pop2()
-        runtime.push(v2 > v1)
+        res = v2 > v1
+        runtime.push(res)
 # -----------------------------------------------------------------
 # Parallel Exec
 # -----------------------------------------------------------------

@@ -63,7 +63,6 @@ class SWAPL_Agent:
         self.export(self.swapl_wait, 'wait', 1)
         self.export(self.swapl_rand, 'rand', 1)
         self.export(self.swapl_role, 'role', 1)
-        self.export(self.swapl_atan2, 'atan2', 1)
 
     def run_thread(self, uParams = []):
         self.thread = threading.Thread(target = self.__run, args = uParams, daemon = True)
@@ -89,7 +88,4 @@ class SWAPL_Agent:
         from swapl_program import SWAPL_Program
         ag_set = self.program.globals_heap.get_var(SWAPL_Program.AGENTSET)
         return ag_set.roles(terms).one().data[0]['object']
-
-    def swapl_atan2(self, terms):
-        return math.atan2(terms[0], terms[1])
 

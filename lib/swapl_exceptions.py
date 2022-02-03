@@ -23,6 +23,13 @@ class UndefinedFieldException(Exception):
 
 
 # -----------------------------------------------------------------
+class UndefinedFunctionException(Exception):
+
+    def __init__(self, uMessage):
+        super().__init__(uMessage)
+
+
+# -----------------------------------------------------------------
 class InvalidOpeningInstructionException(Exception):
 
     def __init__(self):
