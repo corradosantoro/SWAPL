@@ -13,6 +13,7 @@ class SWAPL_Lib:
         self.export(self.swapl_print, 'print')
         self.export(self.swapl_wait, 'wait')
         self.export(self.swapl_role, 'role')
+        self.export(self.swapl_all, 'all')
 
     def export(self, method, name):
         self.functions[name] = method
@@ -33,5 +34,10 @@ class SWAPL_Lib:
         from swapl_program import SWAPL_Program
         ag_set = self.program.globals_heap.get_var(SWAPL_Program.AGENTSET)
         return ag_set.roles(terms).one().data[0]['object']
+
+    def swapl_all(self, terms):
+        from swapl_program import SWAPL_Program
+        ag_set = self.program.globals_heap.get_var(SWAPL_Program.AGENTSET)
+        return ag_set
 
 

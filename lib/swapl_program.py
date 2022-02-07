@@ -22,13 +22,16 @@ class SWAPL_Program:
     AGENTATTRSET = '__agentattributes__'
     ENVIRONMENT = '__environment__'
 
-    def __init__(self, uBList):
+    def __init__(self, uBList = []):
         self.behaviours = { }
         self.agent_file = None
         self.agents = { }
+        self.add_behaviours(uBList)
+        self.lib = SWAPL_Lib(self)
+
+    def add_behaviours(self, uBList):
         for b in uBList:
             self.behaviours[b.get_name()] = b
-        self.lib = SWAPL_Lib(self)
 
     def disasm(self):
         for b in self.behaviours.values():

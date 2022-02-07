@@ -1,4 +1,12 @@
 
+
+var Random = { uniform : @pythonlink "random.uniform" };
+
+var Math = { pi : @pythonlink "math.pi",
+             fabs : @pythonlink "math.fabs",
+             sqrt : @pythonlink "math.sqrt",
+             atan2 : @pythonlink "math.atan2" };
+
 model "base_agent";
 
 roleset ( { name : "leader" },
@@ -6,13 +14,6 @@ roleset ( { name : "leader" },
 
 agentset ( { name : "leader", role : "leader" },
            { spawn : 4, role : "follower" } );
-
-var Math = { pi : @pythonlink "math.pi",
-             fabs : @pythonlink "math.fabs",
-             sqrt : @pythonlink "math.sqrt",
-             atan2 : @pythonlink "math.atan2" };
-
-var Random = { uniform : @pythonlink "random.uniform" };
 
 var THRESHOLD = Math.pi / 6;
 

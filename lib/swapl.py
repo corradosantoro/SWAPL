@@ -22,7 +22,8 @@ from swapl_isa import *
 from swapl_program import *
 from swapl_www import *
 
-_pgm = None
+_pgm = SWAPL_Program()
+
 
 precedence = (
     ('left','PLUS','MINUS'),
@@ -33,44 +34,46 @@ precedence = (
 
 # Parsing rules
 
-def p_program_1(t):
-    ' program : agent_model role_set agent_set program_opts b_bodies '
+def p_program_0(t):
+    ' program : headers b_bodies '
     global _pgm
-    bg = SWAPL_Behaviour( SWAPL_Program.GLOBALS, [ t[2] + t[3] + t[4] ] )
-    _pgm = SWAPL_Program( t[5] + [ bg ] )
-    _pgm.set_agent_model(t[1])
-
-def p_program_2(t):
-    ' program : agent_model role_set agent_set b_bodies '
-    global _pgm
-    bg = SWAPL_Behaviour( SWAPL_Program.GLOBALS, [ t[2] + t[3] ] )
-    _pgm = SWAPL_Program( t[4] + [ bg ] )
-    _pgm.set_agent_model(t[1])
+    bg = SWAPL_Behaviour( SWAPL_Program.GLOBALS, [ t[1] ] )
+    _pgm.add_behaviours( t[2] + [ bg ] )
 
 # ------------------------------------------------------
-def p_program_options_1(t):
-    ' program_opts : program_opt '
+
+def p_headers_1(t):
+    ' headers : header '
     t[0] = t[1]
 
-def p_program_options_2(t):
-    ' program_opts : program_opt program_opts '
+def p_headers_2(t):
+    ' headers : header headers '
     t[0] = t[1] + t[2]
 
 # ------------------------------------------------------
-def p_program_option_1(t):
-    ' program_opt : agent_attr_set '
-    t[0] = t[1]
+
+def p_header_agent_model(t):
+    ' header : agent_model '
+    global _pgm
+    _pgm.set_agent_model(t[1])
+    t[0] = []
 
 # ------------------------------------------------------
-def p_program_option_2(t):
-    ' program_opt : environment_def '
+def p_header_role_set(t):
+    ' header : role_set '
     t[0] = t[1]
-
-# ------------------------------------------------------
-def p_program_option_3(t):
-    ' program_opt : assign '
+def p_header_agent_set(t):
+    ' header : agent_set '
     t[0] = t[1]
-
+def p_header_agent_attributes(t):
+    ' header : agent_attr_set '
+    t[0] = t[1]
+def p_header_environment(t):
+    ' header : environment_def '
+    t[0] = t[1]
+def p_header_assign(t):
+    ' header : assign '
+    t[0] = t[1]
 # ------------------------------------------------------
 
 def p_agent_model(t):
@@ -107,7 +110,6 @@ def p_agent_set(t):
     ' agent_set : AGENTSET LPAREN role_set_statement RPAREN SEMICOLON '
     (count, pgm) = t[3]
     t[0] = pgm + [ MkSet(count), Store(SWAPL_Program.AGENTSET) ]
-
 
 # ------------------------------------------------------
 # agent_attr_set
@@ -271,6 +273,11 @@ def p_fun_call_1(t):
     ' funcall : NAME list_set_statement '
     (count, pgm) = t[2]
     t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
+# ------------------------------------------------------
+def p_fun_call_all(t):
+    ' funcall : ALL list_set_statement '
+    (count, pgm) = t[2]
+    t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
 
 # ------------------------------------------------------
 def p_fun_call_2(t):
@@ -367,6 +374,10 @@ def p_list_expr(t):
     t[0] = pgm + [ MkOrdSet(count) ]
 
 # ------------------------------------------------------
+def p_listset_0(t):
+    'list_set_statement : LPAREN RPAREN'
+    t[0] = (0, [])
+
 def p_listset(t):
     'list_set_statement : LPAREN set_expr_list RPAREN'
     t[0] = t[2]
@@ -468,6 +479,13 @@ if options.disasm:
 if options.server_port is not None:
     filename += 2
 
+
+#current_path = pathlib.Path(__file__).parent.resolve()
+#lib_file = str(current_path) + '/swapllib/all.swapl'
+#fp = open(lib_file)
+#contents = fp.read()
+#fp.close()
+
 fp = open(sys.argv[filename])
 contents = fp.read()
 result = parser.parse(contents)
@@ -483,5 +501,5 @@ else:
     if options.server_port is not None:
         while True:
             import time
-            time.sleep(1)
+            time.sleep(100)
 

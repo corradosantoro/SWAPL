@@ -57,6 +57,7 @@ behaviour main {
   with one {
       var x = my_fun(1,2,3);
       print(x, Math.pi);
+      print(all());
   }
 }
 
