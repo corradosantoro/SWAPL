@@ -98,8 +98,8 @@ class Call(Instruction):
                 raise UndefinedFunctionException()
         f = runtime.program.get_function(self.term)
         if f is None:
-            ( proc, arity ) = runtime.get_agent_object().get_method(self.term)
-            args = StartSL.pop_list(runtime, arity)
+            proc = runtime.program.lib.get_function(self.term)
+            args = StartSL.pop_list(runtime, 1)
             if isfun:
                 ret = proc(*args)
                 runtime.push(ret)

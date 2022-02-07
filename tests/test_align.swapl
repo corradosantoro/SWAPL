@@ -12,6 +12,8 @@ var Math = { pi : @pythonlink "math.pi",
              sqrt : @pythonlink "math.sqrt",
              atan2 : @pythonlink "math.atan2" };
 
+var Random = { uniform : @pythonlink "random.uniform" };
+
 var THRESHOLD = Math.pi / 6;
 
 function normalize(angle) {
@@ -43,16 +45,16 @@ behaviour main {
   }
 
   with roles("follower") {
-    this.x = 300 + rand(-100, 100);
-    this.y = 300 + rand(-100, 100);
-    this.heading = rand(0, 3);
+    this.x = 300 + Random.uniform(-100, 100);
+    this.y = 300 + Random.uniform(-100, 100);
+    this.heading = Random.uniform(0, 3);
   }
 
   with roles("leader") {
       this.v = 8;
       while (1) {
           wait(5);
-          this.heading = normalize(rand(0, 2*3.14159));
+          this.heading = normalize(Random.uniform(0, 2*3.14159));
       }
   }
   |

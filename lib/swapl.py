@@ -7,6 +7,7 @@ import sys
 import os
 
 import math
+import random
 
 from optparse import *
 

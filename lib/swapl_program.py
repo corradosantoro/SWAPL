@@ -10,6 +10,7 @@ import threading
 from swapl_isa import *
 from swapl_codelet import *
 from swapl_concurrency import *
+from swapl_lib import *
 
 # -----------------------------------------------------------------------------
 class SWAPL_Program:
@@ -27,6 +28,7 @@ class SWAPL_Program:
         self.agents = { }
         for b in uBList:
             self.behaviours[b.get_name()] = b
+        self.lib = SWAPL_Lib(self)
 
     def disasm(self):
         for b in self.behaviours.values():
