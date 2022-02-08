@@ -1,4 +1,11 @@
 
+var Random = { uniform : @pythonlink "random.uniform" };
+
+var Math = { pi : @pythonlink "math.pi",
+             fabs : @pythonlink "math.fabs",
+             sqrt : @pythonlink "math.sqrt",
+             atan2 : @pythonlink "math.atan2" };
+
 model "vtol_uav";
 
 roleset ( { name : "leader" },
@@ -19,14 +26,14 @@ behaviour main {
   }
   |
   with roles("follower") {
-    this.x = rand(0, 100);
-    this.y = rand(0, 100);
+    this.x = Random.uniform(0, 100);
+    this.y = Random.uniform(0, 100);
     this.z = 2;
     var leader = role("leader");
     while (1) {
       var dx = leader.x - this.x;
       var dy = leader.y - this.y;
-      var hdg_difference = atan2(dy, dx)  - this.yaw;
+      var hdg_difference = Math.atan2(dy, dx)  - this.yaw;
       #this.wz = hdg_difference * 180.0/3.14159 * 20;
       this.wz = 0;#hdg_difference * 0.05;
       wait(0.1);

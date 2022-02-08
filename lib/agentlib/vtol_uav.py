@@ -29,10 +29,10 @@ class Agent(SWAPL_Agent):
                              'vx', 'vy', 'vz', 'wz',
                              'roll', 'pitch', 'yaw', 'heading',
                              'delta_t', 'image' ] )
-        self.export(self.swapl_set_v, 'set_v', 1)
+        self.export(self.set_v, 'set_v')
         self.run_thread()
 
-    def swapl_set_v(self, terms):
+    def set_v(self, terms):
         v = terms[0]
         self.vx = v * math.cos(self.yaw)
         self.vy = v * math.sin(self.yaw)
