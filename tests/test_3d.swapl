@@ -14,28 +14,43 @@ roleset ( { name : "leader" },
 agentset ( { name : "one", role : "leader" },
            { spawn : 10, role : "follower" } );
 
+function normalize(angle) {
+    while (angle > Math.pi) angle = angle - 2*Math.pi;
+    while (angle < -Math.pi) angle = angle + 2*Math.pi;
+    return angle;
+}
+
 behaviour main {
   with roles("leader") {
-    this.vx = 0;
-    this.vy = 0;
+    this.x = 300;
+    this.y = 300;
     this.z = 2;
+    this.yaw = 3.14159/4.0;
+    this.image = "arrow_red.png";
+  }
+
+  with roles("follower") {
+    this.x = 300 + Random.uniform(-100, 100);
+    this.y = 300 + Random.uniform(-100, 100);
+    this.z = 2;
+    this.yaw = Random.uniform(0, 3);
+  }
+
+  with roles("leader") {
     while (1) {
-      wait(1);
-      this.wz = 0;
+        wait(5);
+        this.yaw = normalize(Random.uniform(0, 2*3.14159));
     }
   }
   |
   with roles("follower") {
-    this.x = Random.uniform(0, 100);
-    this.y = Random.uniform(0, 100);
-    this.z = 2;
     var leader = role("leader");
     while (1) {
-      var dx = leader.x - this.x;
-      var dy = leader.y - this.y;
-      var hdg_difference = Math.atan2(dy, dx)  - this.yaw;
-      #this.wz = hdg_difference * 180.0/3.14159 * 20;
-      this.wz = 0;#hdg_difference * 0.05;
+      var k_hdg = 1.5;
+
+      var align_difference = normalize(leader.yaw - this.yaw);
+      this.wz = k_hdg * align_difference;
+
       wait(0.1);
     }
   }
