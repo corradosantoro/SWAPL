@@ -104,6 +104,9 @@ class SWAPL_Program:
     def get_agent(self, name):
         return self.agents[name]
 
+    def get_environment(self):
+        return self.globals_heap.get_var(SWAPL_Program.ENVIRONMENT)
+
     def get_function(self, name):
         try:
             f = self.behaviours[name]

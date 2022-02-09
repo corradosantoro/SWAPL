@@ -14,6 +14,8 @@ roleset ( { name : "leader" },
 agentset ( { name : "one", role : "leader" },
            { spawn : 10, role : "follower" } );
 
+environment ( { left: -120, top: -120, right: 120, bottom: 120, z_bottom : 0, z_top: 100 } );
+
 function normalize(angle) {
     while (angle > Math.pi) angle = angle - 2*Math.pi;
     while (angle < -Math.pi) angle = angle + 2*Math.pi;
@@ -22,17 +24,17 @@ function normalize(angle) {
 
 behaviour main {
   with roles("leader") {
-    this.x = 300;
-    this.y = 300;
-    this.z = 2;
+    this.x = 0;
+    this.y = 0;
+    this.z = 20;
     this.yaw = 3.14159/4.0;
     this.image = "arrow_red.png";
   }
 
   with roles("follower") {
-    this.x = 300 + Random.uniform(-100, 100);
-    this.y = 300 + Random.uniform(-100, 100);
-    this.z = 2;
+    this.x = Random.uniform(-100, 100);
+    this.y = Random.uniform(-100, 100);
+    this.z = 20;
     this.yaw = Random.uniform(0, 3);
   }
 

@@ -129,6 +129,9 @@ class StructData:
         else:
             raise InvalidTypeException("Must be a struct")
 
+    def fields(self):
+        return self.data.keys()
+
     def set_field(self, uName, uVal):
         self.data[uName] = uVal
 
@@ -137,6 +140,9 @@ class StructData:
             return self.data[uName]
         except KeyError:
             return None
+
+    def get_data(self):
+        return self.data
 
 # -----------------------------------------------------------------
 

@@ -123,9 +123,8 @@ def p_agent_attr_set(t):
 # environment_def
 # ------------------------------------------------------
 def p_environment_def(t):
-    ' environment_def : ENVIRONMENT LPAREN role_set_statement RPAREN SEMICOLON '
-    (count, pgm) = t[3]
-    t[0] = pgm + [ MkSet(count), Store(SWAPL_Program.ENVIRONMENT) ]
+    ' environment_def : ENVIRONMENT LPAREN role_def RPAREN SEMICOLON '
+    t[0] = t[3] + [ Store(SWAPL_Program.ENVIRONMENT) ]
 
 
 # ------------------------------------------------------

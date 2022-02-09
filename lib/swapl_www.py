@@ -37,6 +37,11 @@ class SWAPLHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
                 #                'role' : a_role } )
             content = json.dumps(alist)
             self.send_json(content)
+        elif parsed.path == "/environment":
+            alist = [ ]
+            env = SWAPLHttpRequestHandler.program.get_environment()
+            content = json.dumps(env.get_data())
+            self.send_json(content)
         elif parsed.path == "/agent":
             agent = SWAPLHttpRequestHandler.program.get_agent(parsed.query)
             content = json.dumps(agent.get_field('object').fields())
