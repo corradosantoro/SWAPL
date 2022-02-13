@@ -68,6 +68,14 @@ class Skip(Instruction):
     UNCONDITIONAL = 0
     EQ = 1
     NEQ = 2
+    REPR = { UNCONDITIONAL : "",
+             EQ : "EQ",
+             NEQ : "NEQ" }
+
+    def __repr__(self):
+        ( comparison, instr_to_skip) = self.term
+        return "{}\t{}".format(self.__class__.__name__ + Skip.REPR[comparison], instr_to_skip)
+
     def execute(self, pc, runtime):
         ( comparison, instr_to_skip) = self.term
         if (comparison == Skip.UNCONDITIONAL):
@@ -228,11 +236,18 @@ class ParExecBegin(Instruction):
         self.join = join
 
     def __repr__(self):
-        return "{}\t{}".format(self.__class__.__name__, self.term)
+        (code_size, func) = self.term
+        return "{}\t{} {}".format(self.__class__.__name__, code_size, func)
+
+    def get_parexec_size(self):
+        return self.term[0]
+
+    def get_func(self):
+        return self.term[1]
 
     def execute(self, pc, runtime):
         #print(self.__class__,self.term)
-        func = self.term
+        (code_size, func) = self.term
         agent_set = runtime._get_var('__agentset__')
         if type(func) == tuple:
             (func, params) = func

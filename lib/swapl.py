@@ -37,7 +37,7 @@ precedence = (
 def p_program_0(t):
     ' program : headers b_bodies '
     global _pgm
-    bg = SWAPL_Behaviour( SWAPL_Program.GLOBALS, [ t[1] ] )
+    bg = SWAPL_Behaviour( SWAPL_Program.GLOBALS, t[1] )
     _pgm.add_behaviours( t[2] + [ bg ] )
 
 # ------------------------------------------------------
@@ -197,22 +197,22 @@ def p_assing_4(t):
 # ------------------------------------------------------
 def p_with_list_1(t):
     ' with_list : with_list with_block '
-    t[0] = t[1] + [ t[2] ]
+    t[0] = t[1] + t[2]
 
 def p_with_list_2(t):
     ' with_list : with_block '
-    t[0] = [ t[1] ]
+    t[0] = t[1]
 
 # ------------------------------------------------------
 # with block
 # ------------------------------------------------------
 def p_with_block_1(t):
     ' with_block : WITH with_set BEGIN statements END '
-    t[0] = [ ParExecBegin(t[2]) ] + t[4] + [ ParExecEnd() ]
+    t[0] = [ ParExecBegin( (len(t[4]) + 1, t[2]) ) ] + t[4] + [ ParExecEnd() ]
 
 def p_with_block_2(t):
     ' with_block : WITH with_set BEGIN statements END PIPE '
-    t[0] = [ ParExecBegin(t[2], False) ] + t[4] + [ ParExecEnd() ]
+    t[0] = [ ParExecBegin( (len(t[4]) + 1, t[2]), False) ] + t[4] + [ ParExecEnd() ]
 
 # ------------------------------------------------------
 # with set

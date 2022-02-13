@@ -27,6 +27,7 @@ class SWAPL_Program:
         self.agent_file = None
         self.agents = { }
         self.add_behaviours(uBList)
+        self.globals_heap = SWAPL_Heap()
         self.lib = SWAPL_Lib(self)
 
     def add_behaviours(self, uBList):
@@ -41,7 +42,6 @@ class SWAPL_Program:
         self.agent_file = m
 
     def run(self):
-        self.globals_heap = SWAPL_Heap()
         self.globals_heap.make_var(SWAPL_Program.ROLESET)
         self.globals_heap.make_var(SWAPL_Program.AGENTSET)
         self.globals_heap.make_var(SWAPL_Program.AGENTATTRSET)
@@ -121,17 +121,15 @@ class SWAPL_Program:
 # -----------------------------------------------------------------------------
 class SWAPL_Behaviour:
 
-    def __init__(self, uName, uWithList):
+    def __init__(self, uName, uCode):
         self.name = uName
-        self.with_blocks = uWithList
+        self.code = uCode
 
     def __repr__(self):
         s = "----------------------------------------------------------------------\n"
         s += "Behaviour {}\n".format(self.name)
         s += "----------------------------------------------------------------------\n"
-        for p in self.with_blocks:
-            s += disasm(p)
-            s += "\n"
+        s += disasm(self.code)
         s += "----------------------------------------------------------------------\n\n"
         return s
 
@@ -139,29 +137,37 @@ class SWAPL_Behaviour:
         return self.name
 
     def run_simple(self, program, heap, do_not_push):
-        for w in self.with_blocks:
-            #
-            if do_not_push:
-                new_heap = heap
-            else:
-                new_heap = heap.push()
-            runtime = SWAPL_Runtime(program, new_heap, w)
-            runtime.run()
-            if not(do_not_push):
-                new_heap.pop()
-            #
+        #
+        if do_not_push:
+            new_heap = heap
+        else:
+            new_heap = heap.push()
+        runtime = SWAPL_Runtime(program, new_heap, self.code)
+        runtime.run()
+        if not(do_not_push):
+            new_heap.pop()
         return heap
 
     def run(self, program, heap):
-        for w in self.with_blocks:
+        pc = 0
+        while pc < len(self.code):
             #
             heap = heap.push()
-            opening = w[0]
+            opening = self.code[pc]
             if not(isinstance(opening,ParExecBegin)):
                 raise InvalidOpeningInstructionException()
 
+            code_len = opening.get_parexec_size()
+            closing = self.code[pc+code_len]
+            if not(isinstance(closing,ParExecEnd)):
+                raise InvalidClosingInstructionException()
+
+            w = self.code[pc:pc+code_len+1]
+
+            pc = pc + code_len + 1
+
             agent_set = heap.get_var(SWAPL_Program.AGENTSET)
-            func = opening.term
+            func = opening.get_func()
             if type(func) == tuple:
                 (func, params) = func
                 agent_set = func(agent_set, params)

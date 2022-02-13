@@ -108,6 +108,9 @@ class StructData:
         for i in range(0, len(uKeys)):
             self.data[uKeys[i]] = uVals[i]
 
+    def from_dict(self, dictionary):
+        self.data = dictionary
+
     def clone(self):
         return StructData(list(self.data.keys()), [ self.data[x] for x in list(self.data.keys()) ])
 

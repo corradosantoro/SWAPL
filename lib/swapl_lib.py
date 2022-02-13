@@ -4,16 +4,36 @@
 
 import time
 
+from swapl_types import *
+
 # -----------------------------------------------------------------
 class SWAPL_Lib:
 
     def __init__(self, uProgram):
         self.program = uProgram
-        self.functions = {}
+        self.functions = { }
         self.export(self.swapl_print, 'print')
         self.export(self.swapl_wait, 'wait')
         self.export(self.swapl_role, 'role')
         self.export(self.swapl_all, 'all')
+
+        Random = StructData()
+        Random.from_dict(
+            { "uniform" : PythonLink("random.uniform") }
+        )
+        self.program.globals_heap.make_var("Random")
+        self.program.globals_heap.set_var("Random", Random)
+
+        Math = StructData()
+        Math.from_dict(
+            { "pi" : PythonLink("math.pi"),
+              "fabs" : PythonLink("math.fabs"),
+              "sqrt" : PythonLink("math.sqrt"),
+              "atan2" : PythonLink("math.atan2") }
+        )
+        self.program.globals_heap.make_var("Math")
+        self.program.globals_heap.set_var("Math", Math)
+
 
     def export(self, method, name):
         self.functions[name] = method

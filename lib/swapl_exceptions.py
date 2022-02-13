@@ -36,3 +36,9 @@ class InvalidOpeningInstructionException(Exception):
         super().__init__('A with block must begin with ParExecBegin instruction')
 
 
+class InvalidClosingInstructionException(Exception):
+
+    def __init__(self):
+        super().__init__('A with block must end with ParExecEnd instruction')
+
+

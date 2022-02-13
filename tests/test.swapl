@@ -12,9 +12,6 @@ environment ( { center : 0 } );
 
 attributes ( variable );
 
-var Math = { pi : @pythonlink "math.pi",
-             fabs : @pythonlink "math.fabs" };
-
 behaviour test {
   with all {
     print("hello");
