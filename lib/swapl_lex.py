@@ -55,6 +55,8 @@ tokens = list(reserved.values()) + ['SEMICOLON',
                                     'STRING',
                                     'BEGIN',
                                     'END',
+                                    'SUBL',
+                                    'SUBR',
                                     'PIPE' ]
 
 # Tokens
@@ -76,6 +78,8 @@ t_DOT        = r'\.'
 t_BEGIN      = r'{'
 t_END        = r'}'
 t_PIPE       = r'\|'
+t_SUBL       = r'\['
+t_SUBR       = r'\]'
 
 #def t_BEHAVIOUR(t):
 #    r'behaviour'

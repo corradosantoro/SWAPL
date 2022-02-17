@@ -1,11 +1,11 @@
 
 model "base_agent";
 
-roleset ( { name : "leader" },
-          { name : "follower" } );
+roleset ( { name: "leader" },
+          { name: "follower" } );
 
-agentset ( { name : "leader", role : "leader" },
-           { spawn : 4, role : "follower" } );
+agentset ( { name: "leader", role: "leader" },
+           { spawn: 4, role: "follower" } );
 
 environment ( { left: -120, top: -120, right: 120, bottom: 120, z_bottom : 0, z_top: 100 } );
 
@@ -19,7 +19,7 @@ function normalize(angle) {
 
 function line_for_point(m, x, y) {
     var q = y - m * x;
-    return { m : m,  q: q};
+    return { m: m,  q: q};
 }
 
 function distance_from_line(line, x, y) {
@@ -33,56 +33,59 @@ function distance_from_line(line, x, y) {
 behaviour main {
 
   with roles("leader") {
-    this.x = 0;
-    this.y = 0;
-    this.heading = 3.14159/4.0;
-    this.image = "arrow_red.png";
+      this.x = 0;
+      this.y = 0;
+      this.heading = 3.14159/4.0;
+      this.image = "arrow_red.png";
   }
 
   with roles("follower") {
     this.x = Random.uniform(-100, 100);
     this.y = Random.uniform(-100, 100);
-    this.heading = Random.uniform(0, 3);
+    this.heading = Random.uniform(-Math.pi, Math.pi);
   }
 
   with roles("leader") {
-      this.v = 8;
+      #this.v = 8;
       while (1) {
-          wait(10);
-          this.heading = normalize(Random.uniform(0, 2*3.14159));
+          wait(20);
+          #this.heading = normalize(Random.uniform(0, 2*3.14159));
       }
   }
   |
   with roles("follower") {
-    var leader = role("leader");
-    var k_hdg = 1.5;
-    var kp_v = 2.5;
-    var ki_v = 0.2;
-    var cohesion_integral = 0.0;
-    while (1) {
+      var leaders = all.roles("leader");
+      var leader = leaders[0];
+      var k_hdg = 1.5;
+      var kp_v = 2.5;
+      var ki_v = 0.2;
+      var cohesion_integral = 0.0;
+      while (1) {
 
-      # rule 1 alignment
-      var align_difference = normalize(leader.heading - this.heading);
-      this.w = k_hdg * align_difference;
+          # rule 1 alignment
+          var align_difference = normalize(leader.heading - this.heading);
+          this.w = k_hdg * align_difference;
 
-      # rule 2 cohesion
-      var formation_line_hdg = normalize(leader.heading + Math.pi/2);
-      var line = line_for_point(formation_line_hdg, leader.x, leader.y);
-      var d = distance_from_line(line, this.x, this.y);
+          # rule 2 cohesion
+          var formation_line_hdg = normalize(leader.heading + Math.pi/2);
+          var line = line_for_point(formation_line_hdg, leader.x, leader.y);
+          var d = distance_from_line(line, this.x, this.y);
 
-      var dx = leader.x - this.x;
-      var dy = leader.y - this.y;
-      var hdg_difference = normalize(formation_line_hdg - Math.atan2(dy, dx));
+          var dx = leader.x - this.x;
+          var dy = leader.y - this.y;
+          var hdg_difference = normalize(formation_line_hdg - Math.atan2(dy, dx));
 
-      var v = 0;
-      if (Math.fabs(align_difference) < THRESHOLD) {
-          cohesion_integral = cohesion_integral + hdg_difference;
-          v = kp_v * hdg_difference + ki_v * cohesion_integral;
+          var v = 0;
+          if (Math.fabs(align_difference) < THRESHOLD) {
+              cohesion_integral = cohesion_integral + hdg_difference;
+              v = kp_v * hdg_difference + ki_v * cohesion_integral;
+              if (v > 10) v = 10;
+              if (v < -10) v = - 10;
+          }
+          this.v = v;
+
+          wait(0.1);
       }
-      this.v = v;
-
-      wait(0.1);
-    }
   }
 }
 

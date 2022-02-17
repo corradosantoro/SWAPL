@@ -1,0 +1,40 @@
+
+model "base_agent";
+
+roleset ( { name: "leader" },
+          { name: "follower" } );
+
+agentset ( { name: "leader", role: "leader" },
+           { spawn: 4, role: "follower" } );
+
+environment ( { left: -120, top: -120, right: 120, bottom: 120, z_bottom : 0, z_top: 100 } );
+
+
+behaviour main {
+
+  with roles("leader") {
+      this.x = 0;
+      this.y = 0;
+      this.heading = 0;
+      this.image = "arrow_red.png";
+  }
+
+  with roles("follower") {
+      var radius = 50;
+      var base_angle;
+      if (this.id == 0) { base_angle = -Math.pi / 2; }
+      if (this.id == 1) { base_angle = 0; }
+      if (this.id == 2) { base_angle = Math.pi / 2; }
+      if (this.id == 3) { base_angle = Math.pi; }
+      var i_angle = 0;
+      while (i_angle < Math.pi*2) {
+          var angle = base_angle + i_angle;
+          this.x = radius*Math.cos(angle);
+          this.y = radius*Math.sin(angle);
+          i_angle = i_angle + Math.pi/100;
+          wait(0.1);
+      }
+  }
+
+}
+

@@ -73,6 +73,7 @@ class SWAPL_Runtime:
         pc = 0
         while (pc < len(self.code)):
             instr = self.code[pc]
+            #print(pc, instr)
             target = instr.execute(pc, self)
             if isinstance(instr, Return):
                 return target
@@ -97,7 +98,7 @@ class SWAPL_Runtime:
 
     def set_agent(self, ag):
         self.agent = ag
-        self.agent_object = ag.get_field('object')
+        self.agent_object = ag.get_attribute('object')
 
     def get_program(self):
         return self.program
@@ -116,7 +117,7 @@ class SWAPL_Runtime:
 
     def _get_var(self, uVar):
         if uVar == 'this':
-            return self.agent_object
+            return self.agent
         else:
             return self.heap.get_var(uVar)
 

@@ -18,42 +18,29 @@ class SWAPL_Agent:
     def __init__(self, program, swapl_agent):
         self.program = program
         self.swapl_agent = swapl_agent
-        self.name = swapl_agent.get_field('name')
-        self.role = swapl_agent.get_field('role')
-        self.exported = ['role', 'name']
-        self.methods = {}
+        self.name = swapl_agent.get_attribute('name')
+        self.role = swapl_agent.get_attribute('role')
         self.thread = None
         self.running = False
 
     def __repr__(self):
-        return repr( (self.exported, self.methods) )
+        return repr( self.__class__.__name__ )
 
-    def get_field(self,fname):
-        if fname in self.exported:
-            return getattr(self, fname)
-        else:
-            raise UndefinedFieldException(fname)
+    def add_attributes(self, field_list):
+        for x in field_list:
+            self.swapl_agent.add_attribute(x, AttributeInterface(self, x))
 
-    def set_field(self,fname,fval):
-        if fname in self.exported:
-            setattr(self, fname, fval)
-        else:
-            raise UndefinedFieldException(fname)
+    def add_attribute(self, field):
+        self.swapl_agent.add_attribute(field, AttributeInterface(self, field))
 
-    def fields(self):
-        flds = { }
-        for f in self.exported:
-            flds[f] = self.get_field(f)
-        return flds
+    def get_attribute(self, aname):
+        return getattr(self, aname)
+
+    def set_attribute(self,fname,fval):
+        setattr(self, fname, fval)
 
     def export(self, method, name):
         self.methods[name] = method
-
-    def export_field(self, field):
-        if type(field) == list:
-            [ self.exported.append(x) for x in field ]
-        else:
-            self.exported.append(field)
 
     def get_method(self, name):
         return self.methods[name]

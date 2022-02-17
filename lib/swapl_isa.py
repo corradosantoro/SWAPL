@@ -2,7 +2,10 @@
 # swapl_isa.py
 # -----------------------------------------------------------------
 
+import types
+
 from swapl_types import *
+
 
 def disasm(pgm):
     listing = ""
@@ -64,30 +67,47 @@ class MkVar(Instruction):
 # -----------------------------------------------------------------
 # Transfer
 # -----------------------------------------------------------------
-class Skip(Instruction):
+class Branch(Instruction):
     UNCONDITIONAL = 0
     EQ = 1
     NEQ = 2
     REPR = { UNCONDITIONAL : "",
-             EQ : "EQ",
-             NEQ : "NEQ" }
+             EQ : "Equal",
+             NEQ : "Not Equal" }
 
     def __repr__(self):
         ( comparison, instr_to_skip) = self.term
-        return "{}\t{}".format(self.__class__.__name__ + Skip.REPR[comparison], instr_to_skip)
+        return "{} {}\t{}".format(self.__class__.__name__, Branch.REPR[comparison], instr_to_skip)
 
     def execute(self, pc, runtime):
         ( comparison, instr_to_skip) = self.term
-        if (comparison == Skip.UNCONDITIONAL):
+        if (comparison == Branch.UNCONDITIONAL):
             return pc + instr_to_skip + 1
         val = int(runtime.pop())
-        #print(comparison, val, instr_to_skip)
-        if (comparison == Skip.EQ)and(val == 1):
+        if (comparison == Branch.EQ)and(val == 1):
             return pc + instr_to_skip + 1
-        elif (comparison == Skip.NEQ)and(val == 0):
+        elif (comparison == Branch.NEQ)and(val == 0):
             return pc + instr_to_skip + 1
         else:
             return None
+# -----------------------------------------------------------------
+class Invoke(Instruction):
+    def execute(self, pc, runtime):
+        values = runtime.pop()
+        obj = runtime.pop()
+        method = obj.get_attribute(self.term)
+        args = values.items()
+        if isinstance(method, PythonLink):
+            func = method.eval_as_attribute()
+            ret = func(*args)
+            if ret is not None:
+                runtime.push(ret)
+        else:
+            # its a normal method
+            args.insert(0, obj)
+            ret = method(*args)
+            if ret is not None:
+                runtime.push(ret)
 # -----------------------------------------------------------------
 class Call(Instruction):
     def fun_call_execute(self, isfun, pc, runtime):
@@ -170,24 +190,42 @@ class MkOrdSet(Instruction):
 # -----------------------------------------------------------------
 class MkStruct(Instruction):
     def execute(self, pc, runtime):
-        runtime.push(StructData(self.term, StartSL.pop_list(runtime, len(self.term))))
+        obj = SWAPLObject()
+        obj.add_attributes(self.term, StartSL.pop_list(runtime, len(self.term)))
+        runtime.push(obj)
 # -----------------------------------------------------------------
-class GetField(Instruction):
+class GetAttribute(Instruction):
     def execute(self, pc, runtime):
-        ( var, field ) = self.term
-        obj = runtime._get_var(var)
-        f = obj.get_field(field)
+        var = runtime.pop()
+        field = self.term
+        obj = var #runtime._get_var(var)
+        f = obj.get_attribute(field)
         if isinstance(f, PythonLink):
             runtime.push(f.eval_as_attribute())
+        elif isinstance(f, AttributeInterface):
+            runtime.push(f.get())
         else:
             runtime.push(f)
 # -----------------------------------------------------------------
-class SetField(Instruction):
+class SetAttribute(Instruction):
     def execute(self, pc, runtime):
-        ( var, field ) = self.term
-        obj = runtime._get_var(var)
+        var = runtime.pop()
         val = runtime.pop()
-        obj.set_field(field, val)
+        field = self.term
+        obj = var #runtime._get_var(var)
+        f = obj.get_attribute(field)
+        if isinstance(f,AttributeInterface):
+            f.set(val)
+        else:
+            obj.set_attribute(field, val)
+# -----------------------------------------------------------------
+class GetSubscript(Instruction):
+    def execute(self, pc, runtime):
+        var = runtime.pop()
+        index = runtime.pop()
+        obj = var #runtime._get_var(var)
+        f = obj[index]
+        runtime.push(f)
 # -----------------------------------------------------------------
 # Arithmetic/Logic
 # -----------------------------------------------------------------
@@ -216,6 +254,11 @@ class Neg(Instruction):
         v1 = runtime.pop()
         runtime.push(- v1)
 # -----------------------------------------------------------------
+class CmpEQ(Instruction):
+    def execute(self, pc, runtime):
+        (v1, v2) = runtime.pop2()
+        runtime.push(v2 == v1)
+# -----------------------------------------------------------------
 class CmpLT(Instruction):
     def execute(self, pc, runtime):
         (v1, v2) = runtime.pop2()
@@ -242,18 +285,19 @@ class ParExecBegin(Instruction):
     def get_parexec_size(self):
         return self.term[0]
 
-    def get_func(self):
+    def get_filter_code(self):
         return self.term[1]
 
     def execute(self, pc, runtime):
+        pass
         #print(self.__class__,self.term)
-        (code_size, func) = self.term
-        agent_set = runtime._get_var('__agentset__')
-        if type(func) == tuple:
-            (func, params) = func
-            agent_set = func(agent_set, params)
-        else:
-            agent_set = func(agent_set)
+        #(code_size, func) = self.term
+        #agent_set = runtime._get_var('__agentset__')
+        #if type(func) == tuple:
+        #    (func, params) = func
+        #    agent_set = func(agent_set, params)
+        #else:
+        #    agent_set = func(agent_set)
         #print(agent_set)
 
 # -----------------------------------------------------------------

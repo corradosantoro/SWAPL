@@ -30,9 +30,12 @@ class SWAPLHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
         if parsed.path == "/agentlist":
             alist = [ ]
             for agent in SWAPLHttpRequestHandler.program.get_agents().values():
-                a_name = agent.get_field('name')
-                a_role = agent.get_field('role')
-                alist.append( agent.get_field('object').fields() )
+                #a_name = agent.get_attribute('name')
+                #a_role = agent.get_attribute('role')
+                #alist.append( agent.get_attribute('object').fields() )
+                f = agent.to_dict()
+                del f['object']
+                alist.append(f)
                 #{ 'name' : a_name,
                 #                'role' : a_role } )
             content = json.dumps(alist)
@@ -40,11 +43,13 @@ class SWAPLHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/environment":
             alist = [ ]
             env = SWAPLHttpRequestHandler.program.get_environment()
-            content = json.dumps(env.get_data())
+            content = json.dumps(env.to_dict())
             self.send_json(content)
         elif parsed.path == "/agent":
             agent = SWAPLHttpRequestHandler.program.get_agent(parsed.query)
-            content = json.dumps(agent.get_field('object').fields())
+            f = agent.to_dict()
+            del f['object']
+            content = json.dumps(f)
             self.send_json(content)
         else:
             super().do_GET()

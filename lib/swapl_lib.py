@@ -16,24 +16,26 @@ class SWAPL_Lib:
         self.export(self.swapl_wait, 'wait')
         self.export(self.swapl_role, 'role')
         self.export(self.swapl_all, 'all')
+        #self.export(self.swapl_roles, 'roles')
 
-        Random = StructData()
+        Random = SWAPLObject()
         Random.from_dict(
             { "uniform" : PythonLink("random.uniform") }
         )
         self.program.globals_heap.make_var("Random")
         self.program.globals_heap.set_var("Random", Random)
 
-        Math = StructData()
+        Math = SWAPLObject()
         Math.from_dict(
             { "pi" : PythonLink("math.pi"),
               "fabs" : PythonLink("math.fabs"),
               "sqrt" : PythonLink("math.sqrt"),
+              "sin" : PythonLink("math.sin"),
+              "cos" : PythonLink("math.cos"),
               "atan2" : PythonLink("math.atan2") }
         )
         self.program.globals_heap.make_var("Math")
         self.program.globals_heap.set_var("Math", Math)
-
 
     def export(self, method, name):
         self.functions[name] = method

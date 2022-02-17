@@ -26,6 +26,7 @@ _pgm = SWAPL_Program()
 
 
 precedence = (
+    ('left','DOT'),
     ('left','PLUS','MINUS'),
     ('left','TIMES','DIVIDE'),
     ('left','EEQUAL'),
@@ -189,7 +190,7 @@ def p_assing_3(t):
 
 def p_assing_4(t):
     ' assign : NAME DOT NAME EQUAL expr SEMICOLON '
-    t[0] = t[5] + [ SetField( (t[1], t[3]) ) ]
+    t[0] = t[5] + [ Load(t[1]), SetAttribute( t[3] ) ]
 
 
 # ------------------------------------------------------
@@ -208,35 +209,39 @@ def p_with_list_2(t):
 # ------------------------------------------------------
 def p_with_block_1(t):
     ' with_block : WITH with_set BEGIN statements END '
-    t[0] = [ ParExecBegin( (len(t[4]) + 1, t[2]) ) ] + t[4] + [ ParExecEnd() ]
+    t[0] = [ ParExecBegin( (len(t[4]) + 1, [ Load(SWAPL_Program.AGENTSET) ] + t[2]) ) ] + t[4] + [ ParExecEnd() ]
 
 def p_with_block_2(t):
     ' with_block : WITH with_set BEGIN statements END PIPE '
-    t[0] = [ ParExecBegin( (len(t[4]) + 1, t[2]), False) ] + t[4] + [ ParExecEnd() ]
+    t[0] = [ ParExecBegin( (len(t[4]) + 1, [ Load(SWAPL_Program.AGENTSET) ] + t[2]), False) ] + t[4] + [ ParExecEnd() ]
 
 # ------------------------------------------------------
 # with set
 # ------------------------------------------------------
+def p_with_set_0(t):
+    ' with_set : with_set DOT with_set '
+    t[0] = t[1] + t[3]
+
 def p_with_set_1(t):
     ' with_set : ALL '
-    t[0] = Set.all
+    t[0] = [ MkOrdSet(0), Invoke("all") ]
 
 def p_with_set_2(t):
     ' with_set : ONE '
-    t[0] = Set.one
+    t[0] = [ MkOrdSet(0), Invoke("one") ]
 
 def p_with_set_3(t):
     ' with_set : ROLES LPAREN string_list RPAREN '
-    t[0] = (Set.roles, t[3])
+    t[0] =  t[3] + [ MkOrdSet(len(t[3])), Invoke("roles") ]
 
 # ------------------------------------------------------
 def p_string_list_1(t):
     ' string_list : STRING '
-    t[0] = [ t[1] ]
+    t[0] = [ Push(t[1]) ]
 
 def p_string_list_2(t):
     ' string_list : string_list COMMA STRING '
-    t[0] = t[1] + [ t[2] ]
+    t[0] = t[1] + [ Push(t[2]) ]
 
 # ------------------------------------------------------
 # statements
@@ -268,21 +273,20 @@ def p_proc_call(t):
 # ------------------------------------------------------
 # funcall
 # ------------------------------------------------------
-def p_fun_call_1(t):
-    ' funcall : NAME list_set_statement '
-    (count, pgm) = t[2]
-    t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
+#def p_fun_call_1(t):
+#    ' funcall : NAME list_set_statement '
+#    (count, pgm) = t[2]
+#    t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
 # ------------------------------------------------------
-def p_fun_call_all(t):
-    ' funcall : ALL list_set_statement '
-    (count, pgm) = t[2]
-    t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
-
+#def p_fun_call_all(t):
+#    ' funcall : ALL list_set_statement '
+#    (count, pgm) = t[2]
+#    t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
 # ------------------------------------------------------
-def p_fun_call_2(t):
-    ' funcall : NAME DOT NAME list_set_statement '
-    (count, pgm) = t[4]
-    t[0] = pgm + [ MkOrdSet(count), FunCall( (t[1], t[3]) ) ]
+#def p_fun_call_2(t):
+#    ' funcall : NAME DOT NAME list_set_statement '
+#    (count, pgm) = t[4]
+#    t[0] = pgm + [ MkOrdSet(count), FunCall( (t[1], t[3]) ) ]
 
 # ------------------------------------------------------
 # returnstmt
@@ -297,13 +301,13 @@ def p_returnstmt(t):
 def p_if_1(t):
     ' if_block : IF LPAREN expr RPAREN then_else_statement '
     to_skip = len(t[5])
-    t[0] = t[3] + [ Skip( (Skip.NEQ, to_skip) ) ] + t[5]
+    t[0] = t[3] + [ Branch( (Branch.NEQ, to_skip) ) ] + t[5]
 # ------------------------------------------------------
 def p_if_2(t):
     ' if_block : IF LPAREN expr RPAREN then_else_statement ELSE then_else_statement'
     to_skip = len(t[5])
-    t[0] = t[3] + [ Skip( (Skip.NEQ, to_skip + 1) ) ] + t[5] + \
-      [ Skip( (Skip.UNCONDITIONAL, len(t[7]) ) ) ] + t[7]
+    t[0] = t[3] + [ Branch( (Branch.NEQ, to_skip + 1) ) ] + t[5] + \
+      [ Branch( (Branch.UNCONDITIONAL, len(t[7]) ) ) ] + t[7]
 # ------------------------------------------------------
 def p_then_else_1(t):
     ' then_else_statement : statement '
@@ -320,8 +324,9 @@ def p_while(t):
     ' while_block : WHILE LPAREN expr RPAREN then_else_statement '
     to_skip = len(t[5])
     jump_target = to_skip + 1 + len(t[3]) + 1
-    t[0] = t[3] + [ Skip( (Skip.NEQ, to_skip + 1) ) ] + t[5] + \
-      [ Skip( (Skip.UNCONDITIONAL, -jump_target) ) ]
+    t[0] = t[3] + [ Branch( (Branch.NEQ, to_skip + 1) ) ] + t[5] + \
+      [ Branch( (Branch.UNCONDITIONAL, -jump_target) ) ]
+
 # ------------------------------------------------------
 # expressions
 # ------------------------------------------------------
@@ -348,7 +353,7 @@ def p_d_expr(t):
 
 def p_eequal(t):
     'expr : expr EEQUAL expr'
-    t[0] = t[1] + t[3] + [ Sub() ]
+    t[0] = t[1] + t[3] + [ CmpEQ() ]
 
 def p_lt(t):
     'expr : expr LT expr'
@@ -412,13 +417,39 @@ def p_nameval(t):
     t[0] = ( [ t[1] ], t[3] )
 
 # ------------------------------------------------------
-def p_fun_expr(t):
-    'expr : funcall'
-    t[0] = t[1]
+#def p_fun_expr(t):
+#    'expr : funcall'
+#    t[0] = t[1]
 
 def p_pythonlink(t):
-    'expr : PYTHONLINK STRING'
+    ' expr : PYTHONLINK STRING '
     t[0] = [ Push(PythonLink(t[2])) ]
+
+def p_fun_call_2(t):
+    ' expr : NAME DOT NAME list_set_statement '
+    (count, pgm) = t[4]
+    t[0] = [ Load(t[1]) ] + pgm + [ MkOrdSet(count), Invoke( t[3] ) ]
+
+def p_field_expr(t):
+    ' expr : NAME DOT NAME '
+    t[0] = [ Load(t[1]), GetAttribute(t[3]) ]
+
+def p_fun_call(t):
+    ' expr : NAME list_set_statement '
+    (count, pgm) = t[2]
+    t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
+
+#def p_all_expr(t):
+#    'expr : ALL'
+#    t[0] = [ Load(SWAPL_Program.AGENTSET) ]
+
+def p_with_set_expr(t):
+    'expr : with_set'
+    t[0] = [ Load(SWAPL_Program.AGENTSET) ] + t[1]
+
+def p_val_subscript_expr(t):
+    'expr : NAME SUBL expr SUBR'
+    t[0] = t[3] + [ Load(t[1]), GetSubscript() ]
 
 def p_val_expr(t):
     'expr : NAME'
@@ -432,9 +463,9 @@ def p_string_expr(t):
     'expr : STRING'
     t[0] = [ Push(t[1]) ]
 
-def p_field_expr(t):
-    'expr : NAME DOT NAME'
-    t[0] = [ GetField( (t[1], t[3]) ) ]
+#def p_method_expr(t):
+#    'expr : expr DOT funcall'
+#    t[0] = t[3] + [ GetAttribute(t[3]) ]
 
 def p_true_expr(t):
     'expr : TRUE'

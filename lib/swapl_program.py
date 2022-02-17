@@ -70,31 +70,42 @@ class SWAPL_Program:
         sys.path.insert(0, str(current_path) + '/agentlib/')
 
         self.agent_module = importlib.import_module(self.agent_file)
+        gid = 0
         for agent in ag_set.items():
-            a_name = agent.get_field('name')
-            a_role = agent.get_field('role')
+            try:
+                a_name = agent.get_attribute('name')
+            except UndefinedAttributeException:
+                a_name = None
+            a_role = agent.get_attribute('role')
             if a_name is None:
-                a_spawn = agent.get_field('spawn')
+                a_spawn = agent.get_attribute('spawn')
                 for i in range(0, a_spawn):
                     new_agent = agent.clone()
                     a_name = 'dynamic-' + str(i)
-                    new_agent.set_field('name', a_name)
+                    try:
+                        new_agent.set_attribute('name', a_name)
+                    except UndefinedAttributeException:
+                        new_agent.add_attribute('name', a_name)
                     a_obj = self.agent_module.Agent(self, new_agent)
-                    new_agent.set_field('object', a_obj)
+                    new_agent.add_attribute('object', a_obj)
                     if ag_attr_set is not None:
                         for attribute in ag_attr_set.items():
-                            a_obj.export_field(attribute)
-                            a_obj.set_field(attribute, None)
+                            a_obj.add_attribute(attribute)
+                            setattr(a_obj, attribute, "")
                     a_obj.on_create()
+                    new_agent.add_attribute('gid', gid)
+                    gid = gid + 1
                     self.agents[a_name] = new_agent
             else:
                 a_obj = self.agent_module.Agent(self, agent)
-                agent.set_field('object', a_obj)
+                agent.add_attribute('object', a_obj)
                 if ag_attr_set is not None:
                     for attribute in ag_attr_set.items():
-                        a_obj.export_field(attribute)
-                        a_obj.set_field(attribute, None)
+                        a_obj.add_attribute(attribute)
+                        setattr(a_obj, attribute, "")
                 a_obj.on_create()
+                agent.add_attribute('gid', gid)
+                gid = gid + 1
                 self.agents[a_name] = agent
         self.globals_heap.set_var(SWAPL_Program.AGENTSET, Set(list(self.agents.values())))
 
@@ -166,13 +177,20 @@ class SWAPL_Behaviour:
 
             pc = pc + code_len + 1
 
-            agent_set = heap.get_var(SWAPL_Program.AGENTSET)
-            func = opening.get_func()
-            if type(func) == tuple:
-                (func, params) = func
-                agent_set = func(agent_set, params)
-            else:
-                agent_set = func(agent_set)
+            agent_set_runtime = SWAPL_Runtime(program, heap.clone(), opening.get_filter_code())
+
+            agent_set_runtime.run()
+            agent_set = agent_set_runtime.pop()
+            for i in range(0,agent_set.size()):
+                agent_set[i].add_attribute('id', i)
+
+            #agent_set = heap.get_var(SWAPL_Program.AGENTSET)
+            #func = opening.get_func()
+            #if type(func) == tuple:
+            #    (func, params) = func
+            #    agent_set = func(agent_set, params)
+            #else:
+            #    agent_set = func(agent_set)
             #print(agent_set)
 
             entering_point = MeetingPoint(agent_set.size())
