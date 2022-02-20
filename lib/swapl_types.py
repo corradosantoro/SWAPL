@@ -74,6 +74,7 @@ class Set(SWAPLObject):
         self.add_attribute("one", Set.one)
         self.add_attribute("roles", Set.roles)
         self.add_attribute("but", Set.but)
+        self.add_attribute("filter", Set.filter)
         self.add_attribute("minimum", Set.filter_minimum)
 
     def clone(self):
@@ -146,6 +147,14 @@ class Set(SWAPLObject):
 
     def but(self, runtime, term):
         return self - term
+
+    def filter(self, runtime, func):
+        new_set = []
+        for a in self.data:
+            val = func.call(runtime, [ a ])
+            if val:
+                new_set.append(a)
+        return Set(new_set)
 
     def filter_minimum(self, runtime, func):
         min_val = None

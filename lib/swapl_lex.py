@@ -17,6 +17,7 @@ reserved = {
     'one' : 'ONE',
     'roles' : 'ROLES',
     'but' : 'BUT',
+    'filter' : 'FILTER',
     'minimum' : 'MINIMUM',
     'roleset' : 'ROLESET',
     'agentset' : 'AGENTSET',

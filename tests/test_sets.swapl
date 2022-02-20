@@ -1,0 +1,38 @@
+
+model "base_agent";
+
+roleset ( { name: "leader" },
+          { name: "follower" } );
+
+agentset ( { name: "main_agent",   role: "leader" },
+           { name: "another",      role: "follower" },
+           { name: "another_one",  role: "follower" } );
+
+behaviour main {
+    with all {
+        print(this.name, this);
+        var f = all.filter(function(ag) { return ag.role == "follower"; });
+        print(f);
+    }
+    with one {
+        var f = all.minimum(function (x) { return x.id; });
+        print("MIN", f);
+        print("ONE");
+        print(this.name, one);
+        var i = 0;
+        var all_set = all;
+        while (i < 3) {
+            var ag = all_set[i];
+            print(i, ag.name);
+            i = i + 1;
+        }
+    }
+    with roles("leader") {
+        print("LEADERS");
+        print(this);
+    }
+    with roles("follower").one {
+        print("FOLLOWERS");
+        print(this.name);
+    }
+}

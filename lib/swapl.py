@@ -253,6 +253,10 @@ def p_with_set_5(t):
     ' with_set : MINIMUM LPAREN function_def RPAREN '
     t[0] =  [ Push(t[3][0]), MkOrdSet(1), Invoke("minimum") ]
 
+def p_with_set_6(t):
+    ' with_set : FILTER LPAREN function_def RPAREN '
+    t[0] =  [ Push(t[3][0]), MkOrdSet(1), Invoke("filter") ]
+
 # ------------------------------------------------------
 def p_string_list_1(t):
     ' string_list : STRING '
