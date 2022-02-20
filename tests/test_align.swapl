@@ -5,29 +5,24 @@ roleset ( { name: "leader" },
           { name: "follower" } );
 
 agentset ( { name: "leader", role: "leader" },
-           { spawn: 4, role: "follower" } );
+           { spawn: 10, role: "follower" } );
 
 environment ( { left: -120, top: -120, right: 120, bottom: 120, z_bottom : 0, z_top: 100 } );
 
 var THRESHOLD = Math.pi / 6;
 
-function normalize(angle) {
-    while (angle > Math.pi) angle = angle - 2*Math.pi;
-    while (angle < -Math.pi) angle = angle + 2*Math.pi;
-    return angle;
-}
 
 function line_for_point(m, x, y) {
     var q = y - m * x;
     return { m: m,  q: q};
 }
 
+
 function distance_from_line(line, x, y) {
     var num = Math.fabs(y - (line.m * x + line.q));
     var den = Math.sqrt(1 + line.m * line.m);
     return num / den;
 }
-
 
 
 behaviour main {
@@ -62,18 +57,18 @@ behaviour main {
       var cohesion_integral = 0.0;
       while (1) {
 
-          # rule 1 alignment
-          var align_difference = normalize(leader.heading - this.heading);
+          # rule 1.1 yaw alignment
+          var align_difference = Math.angleNormalize(leader.heading - this.heading);
           this.w = k_hdg * align_difference;
 
-          # rule 2 cohesion
-          var formation_line_hdg = normalize(leader.heading + Math.pi/2);
+          # rule 1.2 formation line alignment
+          var formation_line_hdg = Math.angleNormalize(leader.heading + Math.pi/2);
           var line = line_for_point(formation_line_hdg, leader.x, leader.y);
           var d = distance_from_line(line, this.x, this.y);
 
           var dx = leader.x - this.x;
           var dy = leader.y - this.y;
-          var hdg_difference = normalize(formation_line_hdg - Math.atan2(dy, dx));
+          var hdg_difference = Math.angleNormalize(formation_line_hdg - Math.atan2(dy, dx));
 
           var v = 0;
           if (Math.fabs(align_difference) < THRESHOLD) {
@@ -82,7 +77,29 @@ behaviour main {
               if (v > 10) v = 10;
               if (v < -10) v = - 10;
           }
-          this.v = v;
+          this.loc_vx = v;
+
+          # rule 2 cohesion
+          var nearest = all.but(this).minimum(
+                                    function(ag) {
+                                        var d = Math.hypot(this.x - ag.x, this.y - ag.y);
+                                        #print(this.x);
+                                        return d;
+                                    });
+          var d = Math.hypot(this.x - nearest.x, this.y - nearest.y);
+          #print(nearest, d);
+          if (d > 50) {
+              var v = d * 0.1;
+              this.loc_vy = v;
+          }
+          else
+          if (d < 40) {
+              var v = - 100 / (d*d);
+              this.loc_vy = v;
+              #print(v);
+          }
+          else
+              this.loc_vy = 0;
 
           wait(0.1);
       }

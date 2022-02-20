@@ -151,15 +151,26 @@ def p_b_bodies_2(t):
     ' b_bodies : b_body '
     t[0] = t[1]
 
-def p_b_body_1(t):
-    ' b_body : BEHAVIOUR NAME BEGIN with_list END'
+
+def p_b_body(t):
+    ''' b_body : behaviour_def
+               | function_def '''
+    t[0] = t[1]
+
+def p_behaviour_def(t):
+    ' behaviour_def : BEHAVIOUR NAME BEGIN with_list END'
     t[0] = [ SWAPL_Behaviour(t[2], t[4]) ]
 
 
-def p_b_body_2(t):
-    ' b_body : FUNCTION NAME LPAREN names_list RPAREN BEGIN statements END'
+def p_function_1_def(t):
+    ' function_def : FUNCTION NAME LPAREN names_list RPAREN BEGIN statements END'
     #print('Function', t[2], t[4])
     t[0] = [ SWAPL_Function(t[2], t[4], t[7]) ]
+
+def p_function_2_def(t):
+    ' function_def : FUNCTION LPAREN names_list RPAREN BEGIN statements END'
+    #print('Function', t[2], t[4])
+    t[0] = [ SWAPL_Function('anon', t[3], t[6]) ]
 
 
 # ------------------------------------------------------
@@ -233,6 +244,14 @@ def p_with_set_2(t):
 def p_with_set_3(t):
     ' with_set : ROLES LPAREN string_list RPAREN '
     t[0] =  t[3] + [ MkOrdSet(len(t[3])), Invoke("roles") ]
+
+def p_with_set_4(t):
+    ' with_set : BUT LPAREN expr RPAREN '
+    t[0] =  t[3] + [ MkOrdSet(1), Invoke("but") ]
+
+def p_with_set_5(t):
+    ' with_set : MINIMUM LPAREN function_def RPAREN '
+    t[0] =  [ Push(t[3][0]), MkOrdSet(1), Invoke("minimum") ]
 
 # ------------------------------------------------------
 def p_string_list_1(t):
@@ -463,9 +482,9 @@ def p_string_expr(t):
     'expr : STRING'
     t[0] = [ Push(t[1]) ]
 
-#def p_method_expr(t):
-#    'expr : expr DOT funcall'
-#    t[0] = t[3] + [ GetAttribute(t[3]) ]
+def p_fundef_expr(t):
+    'expr : function_def'
+    t[0] = [ Push(t[1][0]) ]
 
 def p_true_expr(t):
     'expr : TRUE'

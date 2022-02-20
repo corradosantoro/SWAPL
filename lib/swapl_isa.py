@@ -102,8 +102,13 @@ class Invoke(Instruction):
             ret = func(*args)
             if ret is not None:
                 runtime.push(ret)
+        elif isinstance(method, PythonFunction):
+            ret = method.evaluate(*args)
+            if ret is not None:
+                runtime.push(ret)
         else:
-            # its a normal method
+            # its a normal SWAPL_Object method
+            args.insert(0, runtime)
             args.insert(0, obj)
             ret = method(*args)
             if ret is not None:
@@ -135,19 +140,8 @@ class Call(Instruction):
                 proc(*args)
             return None
         else:
-            from swapl_codelet import SWAPL_Runtime, SWAPL_Heap
-            heap = runtime.get_heap().push()
-            params = f.get_params()
-            i = len(params) - 1
             values = runtime.pop()
-            while i >= 0:
-                heap.make_var(params[i])
-                heap.set_var(params[i], values[i])
-                i -= 1
-            new_runtime = SWAPL_Runtime(runtime.get_program(), heap, f.get_code())
-            new_runtime.set_agent_object(runtime.get_agent_object())
-            ret_val = new_runtime.run()
-            heap = heap.pop()
+            ret_val = f.call(runtime, values)
             if ret_val is not None:
                 runtime.push(ret_val)
 

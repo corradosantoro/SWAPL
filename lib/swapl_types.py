@@ -73,6 +73,8 @@ class Set(SWAPLObject):
         self.add_attribute("all", Set.all)
         self.add_attribute("one", Set.one)
         self.add_attribute("roles", Set.roles)
+        self.add_attribute("but", Set.but)
+        self.add_attribute("minimum", Set.filter_minimum)
 
     def clone(self):
         cl = self.__class__
@@ -123,23 +125,43 @@ class Set(SWAPLObject):
     def items(self):
         return self.data
 
-    def one(self):
+    # -----------------------------
+    def all(self, runtime):
+        return self
+
+    def one(self, runtime):
         idx = random.randint(0, len(self.data) - 1)
         selected = Set([ self.data[idx] ])
         return selected
 
-    def all(self):
-        return self
-
-    def roles(self, uRoleList):
+    def roles(self, runtime, uRoleList):
         selected = [ ]
         for a in self.data:
             if a.get_attribute('role') in uRoleList:
                 selected.append(a)
         return Set(selected)
 
-    def all_but(self, term):
+    def all_but(self, runtime, term):
         return self - term
+
+    def but(self, runtime, term):
+        return self - term
+
+    def filter_minimum(self, runtime, func):
+        min_val = None
+        min_element = None
+        for a in self.data:
+            val = func.call(runtime, [ a ])
+            if min_val is None:
+                min_val = val
+                min_element = a
+            elif val < min_val:
+                min_val = val
+                min_element = a
+
+        #print(func)
+
+        return min_element
 
 # -----------------------------------------------------------------
 class OrderedSet(Set):
@@ -241,6 +263,16 @@ class PythonLink:
 
         def eval_as_attribute(self):
             return eval(self.link)
+
+# -----------------------------------------------------------------
+
+class PythonFunction:
+
+        def __repr__(self):
+            return "@pythonfuction %s" % (self.__class__.__name__)
+
+        def evaluate(self, *args):
+            pass
 
 # -----------------------------------------------------------------
 

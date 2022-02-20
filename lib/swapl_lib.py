@@ -3,8 +3,18 @@
 # -----------------------------------------------------------------
 
 import time
+import math
 
 from swapl_types import *
+
+# -----------------------------------------------------------------
+class angleNormalize(PythonFunction):
+    def evaluate(self, angle):
+        while angle > math.pi:
+            angle = angle - 2*math.pi
+        while angle < -math.pi:
+            angle = angle + 2*math.pi
+        return angle
 
 # -----------------------------------------------------------------
 class SWAPL_Lib:
@@ -30,9 +40,11 @@ class SWAPL_Lib:
             { "pi" : PythonLink("math.pi"),
               "fabs" : PythonLink("math.fabs"),
               "sqrt" : PythonLink("math.sqrt"),
+              "hypot" : PythonLink("math.hypot"),
               "sin" : PythonLink("math.sin"),
               "cos" : PythonLink("math.cos"),
-              "atan2" : PythonLink("math.atan2") }
+              "atan2" : PythonLink("math.atan2"),
+              "angleNormalize" : angleNormalize() }
         )
         self.program.globals_heap.make_var("Math")
         self.program.globals_heap.set_var("Math", Math)

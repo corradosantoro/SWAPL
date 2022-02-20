@@ -237,6 +237,18 @@ class SWAPL_Function:
     def get_code(self):
         return self.code
 
+    def call(self, runtime, values):
+        heap = runtime.get_heap().push()
+        i = len(self.params) - 1
+        while i >= 0:
+            heap.make_var(self.params[i])
+            heap.set_var(self.params[i], values[i])
+            i -= 1
+        new_runtime = SWAPL_Runtime(runtime.get_program(), heap, self.code)
+        new_runtime.set_agent(runtime.get_agent())
+        ret_val = new_runtime.run()
+        heap = heap.pop()
+        return ret_val
 
 # -----------------------------------------------------------------------------
 class SWAPL_Thread(threading.Thread):
