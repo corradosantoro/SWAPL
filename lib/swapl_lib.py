@@ -6,6 +6,7 @@ import time
 import math
 
 from swapl_types import *
+from swapl_lib_control import *
 
 # -----------------------------------------------------------------
 class angleNormalize(PythonFunction):
@@ -15,6 +16,15 @@ class angleNormalize(PythonFunction):
         while angle < -math.pi:
             angle = angle + 2*math.pi
         return angle
+# -----------------------------------------------------------------
+class sign(PythonFunction):
+    def evaluate(self, d):
+        if d < 0:
+            return -1
+        elif d > 0:
+            return 1
+        else:
+            return 0
 
 # -----------------------------------------------------------------
 class SWAPL_Lib:
@@ -44,10 +54,18 @@ class SWAPL_Lib:
               "sin" : PythonLink("math.sin"),
               "cos" : PythonLink("math.cos"),
               "atan2" : PythonLink("math.atan2"),
-              "angleNormalize" : angleNormalize() }
+              "angleNormalize" : angleNormalize(),
+              "sgn" : sign() }
         )
         self.program.globals_heap.make_var("Math")
         self.program.globals_heap.set_var("Math", Math)
+
+        Control = SWAPLObject()
+        Control.from_dict(
+            { "saturate" : saturate() }
+        )
+        self.program.globals_heap.make_var("Control")
+        self.program.globals_heap.set_var("Control", Control)
 
     def export(self, method, name):
         self.functions[name] = method

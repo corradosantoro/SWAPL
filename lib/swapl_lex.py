@@ -28,6 +28,10 @@ reserved = {
     'else' : 'ELSE',
     'true' : 'TRUE',
     'false' : 'FALSE',
+    'none' : 'NONE',
+    'None' : 'NONE',
+    'null' : 'NONE',
+    'Null' : 'NONE',
     'function' : 'FUNCTION',
     'return' : 'RETURN',
     '@pythonlink' : 'PYTHONLINK',
@@ -45,6 +49,7 @@ tokens = list(reserved.values()) + ['SEMICOLON',
                                     'DOT',
                                     'EQUAL',
                                     'EEQUAL',
+                                    'NEQUAL',
                                     'LT',
                                     'GT',
                                     'PLUS',
@@ -70,6 +75,7 @@ t_TIMES      = r'\*'
 t_DIVIDE     = r'/'
 t_EQUAL      = r'='
 t_EEQUAL     = r'=='
+t_NEQUAL     = r'!='
 t_LT         = r'<'
 t_GT         = r'>'
 t_LPAREN     = r'\('

@@ -5,7 +5,7 @@ roleset ( { name: "leader" },
           { name: "follower" } );
 
 agentset ( { name: "leader", role: "leader" },
-           { spawn: 10, role: "follower" } );
+           { spawn: 2, role: "follower" } );
 
 environment ( { left: -120, top: -120, right: 120, bottom: 120, z_bottom : 0, z_top: 100 } );
 
@@ -53,7 +53,7 @@ behaviour main {
       var leader = leaders[0];
       var k_hdg = 1.5;
       var kp_v = 2.5;
-      var ki_v = 0.2;
+      var ki_v = 0.1;
       var cohesion_integral = 0.0;
       while (1) {
 
@@ -64,42 +64,86 @@ behaviour main {
           # rule 1.2 formation line alignment
           var formation_line_hdg = Math.angleNormalize(leader.heading + Math.pi/2);
           var line = line_for_point(formation_line_hdg, leader.x, leader.y);
-          var d = distance_from_line(line, this.x, this.y);
+          var dist_from_line = distance_from_line(line, this.x, this.y);
 
           var dx = leader.x - this.x;
           var dy = leader.y - this.y;
           var hdg_difference = Math.angleNormalize(formation_line_hdg - Math.atan2(dy, dx));
 
+          dist_from_line = dist_from_line * Math.sgn(hdg_difference);
+
           var v = 0;
           if (Math.fabs(align_difference) < THRESHOLD) {
-              cohesion_integral = cohesion_integral + hdg_difference;
-              v = kp_v * hdg_difference + ki_v * cohesion_integral;
-              if (v > 10) v = 10;
-              if (v < -10) v = - 10;
+              cohesion_integral = cohesion_integral + dist_from_line;
+              v = kp_v * dist_from_line + ki_v * cohesion_integral;
+              v = Control.saturate(v, -10, 10);
           }
           this.loc_vx = v;
 
           # rule 2 cohesion
-          var nearest = all.but(this).minimum(
-                                    function(ag) {
-                                        var d = Math.hypot(this.x - ag.x, this.y - ag.y);
-                                        #print(this.x);
-                                        return d;
-                                    });
-          var d = Math.hypot(this.x - nearest.x, this.y - nearest.y);
-          #print(nearest, d);
-          if (d > 50) {
-              var v = d * 0.1;
-              this.loc_vy = v;
+          var left = all.but(this).filter(
+                                          function(ag) {
+                                              var hdg = Math.angleNormalize(Math.atan2(ag.y - this.y, ag.x - this.x));
+                                              if (hdg > Math.pi/2)
+                                                  return true;
+                                              else if (hdg < -Math.pi/2)
+                                                  return true;
+                                              else
+                                                  return false;
+                                          }
+                                          );
+
+          var right = all.but(this).filter(
+                                           function(ag) {
+                                               var hdg = Math.angleNormalize(Math.atan2(ag.y - this.y, ag.x - this.x));
+                                               if (hdg < Math.pi/2) {
+                                                   if (hdg > - Math.pi/2)
+                                                       return true;
+                                               }
+                                               return false;
+                                           }
+                                           );
+
+          #print(this.name, "LEFT", left);
+          #print(this.name, "RIGHT", right);
+
+          var nearest_left = left.minimum(
+                                          function(ag) {
+                                              var d = Math.hypot(this.x - ag.x, this.y - ag.y);
+                                              return d;
+                                          });
+          var nearest_right = right.minimum(
+                                            function(ag) {
+                                                var d = Math.hypot(this.x - ag.x, this.y - ag.y);
+                                                return d;
+                                            });
+
+          #print(this.name, "NEAREST-LEFT", nearest_left);
+          #print(this.name, "NEAREST-RIGHT", nearest_right);
+
+          var d_left = 0;
+          var d_right = 0;
+
+          if (nearest_left != none)
+              d_left = - Math.hypot(this.x - nearest_left.x, this.y - nearest_left.y);
+
+          if (nearest_right != none)
+              d_right = Math.hypot(this.x - nearest_right.x, this.y - nearest_right.y);
+
+          var d = (d_left + d_right) / 2;
+          #print(this.name, d);
+
+          this.loc_vy = 0;
+          if (dist_from_line < 40) {
+              if (Math.fabs(d) > 10) {
+                  var v = - d * 0.2;
+                  this.loc_vy = Control.saturate(v, -10, 10);
+              }
+              else if (Math.fabs(d) < 5) {
+                  var v = 100 / (d*d);
+                  this.loc_vy = Control.saturate(v, -10, 10);
+              }
           }
-          else
-          if (d < 40) {
-              var v = - 100 / (d*d);
-              this.loc_vy = v;
-              #print(v);
-          }
-          else
-              this.loc_vy = 0;
 
           wait(0.1);
       }

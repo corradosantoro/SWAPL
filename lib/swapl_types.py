@@ -63,6 +63,10 @@ class SWAPLObject:
         cloned.add_attributes(list(self._attributes.keys()), [ self._attributes[x] for x in list(self._attributes.keys()) ])
         return cloned
 
+# -----------------------------------------------------------------
+class Constants:
+
+    NONE = SWAPLObject()
 
 # -----------------------------------------------------------------
 class Set(SWAPLObject):
@@ -158,7 +162,7 @@ class Set(SWAPLObject):
 
     def filter_minimum(self, runtime, func):
         min_val = None
-        min_element = None
+        min_element = Constants.NONE
         for a in self.data:
             val = func.call(runtime, [ a ])
             if min_val is None:
@@ -168,7 +172,7 @@ class Set(SWAPLObject):
                 min_val = val
                 min_element = a
 
-        #print(func)
+        #print(min_element)
 
         return min_element
 

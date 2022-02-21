@@ -253,6 +253,11 @@ class CmpEQ(Instruction):
         (v1, v2) = runtime.pop2()
         runtime.push(v2 == v1)
 # -----------------------------------------------------------------
+class CmpNEQ(Instruction):
+    def execute(self, pc, runtime):
+        (v1, v2) = runtime.pop2()
+        runtime.push(v2 != v1)
+# -----------------------------------------------------------------
 class CmpLT(Instruction):
     def execute(self, pc, runtime):
         (v1, v2) = runtime.pop2()

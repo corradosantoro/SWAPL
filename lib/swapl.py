@@ -378,6 +378,10 @@ def p_eequal(t):
     'expr : expr EEQUAL expr'
     t[0] = t[1] + t[3] + [ CmpEQ() ]
 
+def p_nequal(t):
+    'expr : expr NEQUAL expr'
+    t[0] = t[1] + t[3] + [ CmpNEQ() ]
+
 def p_lt(t):
     'expr : expr LT expr'
     t[0] = t[1] + t[3] + [ CmpLT() ]
@@ -453,6 +457,10 @@ def p_fun_call_2(t):
     (count, pgm) = t[4]
     t[0] = [ Load(t[1]) ] + pgm + [ MkOrdSet(count), Invoke( t[3] ) ]
 
+def p_field_set(t):
+    ' expr : NAME DOT with_set '
+    t[0] = [ Load(t[1]) ] + (t[3])
+
 def p_field_expr(t):
     ' expr : NAME DOT NAME '
     t[0] = [ Load(t[1]), GetAttribute(t[3]) ]
@@ -489,6 +497,10 @@ def p_string_expr(t):
 def p_fundef_expr(t):
     'expr : function_def'
     t[0] = [ Push(t[1][0]) ]
+
+def p_none_expr(t):
+    'expr : NONE'
+    t[0] = [ Push(Constants.NONE) ]
 
 def p_true_expr(t):
     'expr : TRUE'
