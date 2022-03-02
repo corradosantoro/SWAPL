@@ -73,7 +73,7 @@ def p_header_environment(t):
     ' header : environment_def '
     t[0] = t[1]
 def p_header_assign(t):
-    ' header : assign '
+    ' header : assign SEMICOLON '
     t[0] = t[1]
 # ------------------------------------------------------
 
@@ -188,19 +188,19 @@ def p_name_list_2(t):
 # assignment
 # ------------------------------------------------------
 def p_assing_1(t):
-    ' assign : VAR NAME EQUAL expr SEMICOLON '
+    ' assign : VAR NAME EQUAL expr '
     t[0] = t[4] + [ MkVar(t[2]), Store(t[2]) ]
 
 def p_assing_2(t):
-    ' assign : NAME EQUAL expr SEMICOLON '
+    ' assign : NAME EQUAL expr '
     t[0] = t[3] + [ Store(t[1]) ]
 
 def p_assing_3(t):
-    ' assign : VAR NAME SEMICOLON '
+    ' assign : VAR NAME '
     t[0] = [ MkVar(t[2]) ]
 
 def p_assing_4(t):
-    ' assign : NAME DOT NAME EQUAL expr SEMICOLON '
+    ' assign : NAME DOT NAME EQUAL expr '
     t[0] = t[5] + [ Load(t[1]), SetAttribute( t[3] ) ]
 
 
@@ -278,10 +278,11 @@ def p_statements_2(t):
     t[0] = t[1]
 
 def p_statement(t):
-    ''' statement : assign
+    ''' statement : assign SEMICOLON
                   | proccall
                   | returnstmt
                   | if_block
+                  | for_block
                   | while_block'''
     t[0] = t[1]
 
@@ -348,6 +349,16 @@ def p_while(t):
     to_skip = len(t[5])
     jump_target = to_skip + 1 + len(t[3]) + 1
     t[0] = t[3] + [ Branch( (Branch.NEQ, to_skip + 1) ) ] + t[5] + \
+      [ Branch( (Branch.UNCONDITIONAL, -jump_target) ) ]
+
+# ------------------------------------------------------
+# for
+# ------------------------------------------------------
+def p_for(t):
+    ' for_block : FOR LPAREN assign SEMICOLON expr SEMICOLON assign RPAREN then_else_statement '
+    to_skip = len(t[9]) + len(t[7])
+    jump_target = to_skip + 1 + len(t[5]) + 1
+    t[0] = t[3] + t[5] + [ Branch( (Branch.NEQ, to_skip + 1) ) ] + t[9] + t[7] + \
       [ Branch( (Branch.UNCONDITIONAL, -jump_target) ) ]
 
 # ------------------------------------------------------

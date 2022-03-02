@@ -24,6 +24,7 @@ reserved = {
     'attributes' : 'AGENTATTRSET',
     'environment' : 'ENVIRONMENT',
     'while' : 'WHILE',
+    'for' : 'FOR',
     'if' : 'IF',
     'else' : 'ELSE',
     'true' : 'TRUE',
