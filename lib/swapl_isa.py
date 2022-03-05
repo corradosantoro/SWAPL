@@ -41,6 +41,10 @@ class Push(Instruction):
     def execute(self, pc, runtime):
         runtime.push(self.term)
 # -----------------------------------------------------------------
+class Pop(Instruction):
+    def execute(self, pc, runtime):
+        runtime.pop()
+# -----------------------------------------------------------------
 class Dup(Instruction):
     def execute(self, pc, runtime):
         runtime.dup()

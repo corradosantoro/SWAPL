@@ -1,0 +1,34 @@
+
+model "base_agent";
+
+roleset ( { name : "leader" } );
+
+agentset ( { name : "main_agent", role : "leader" } );
+
+environment ( { center : 0 } );
+
+attributes ( variable );
+
+behaviour main {
+  with all {
+      var a = 5;
+      if (a > 4) {
+          print("CINQUE!");
+          print("sei sette otto!");
+      }
+      else {
+          print("ELSE!!");
+      }
+      a = 5;
+      while (a > 0) {
+          print("while", a);
+          a = a - 1;
+      }
+      for (var i = 0;
+           i < 10;
+           ++i) {
+          print("for", i);
+      }
+  }
+}
+

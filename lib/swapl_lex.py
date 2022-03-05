@@ -54,6 +54,7 @@ tokens = list(reserved.values()) + ['SEMICOLON',
                                     'LT',
                                     'GT',
                                     'PLUS',
+                                    'PPLUS',
                                     'MINUS',
                                     'TIMES',
                                     'DIVIDE',
@@ -71,6 +72,7 @@ tokens = list(reserved.values()) + ['SEMICOLON',
 # Tokens
 
 t_PLUS       = r'\+'
+t_PPLUS       = r'\++'
 t_MINUS      = r'-'
 t_TIMES      = r'\*'
 t_DIVIDE     = r'/'

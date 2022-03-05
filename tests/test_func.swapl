@@ -1,0 +1,19 @@
+
+model "base_agent";
+
+roleset ( { name : "leader" } );
+
+agentset ( { name : "main_agent", role : "leader" } );
+
+function my_fun(a,b,c) {
+    var x = a*b+c;
+    return x;
+}
+
+behaviour main {
+  with one {
+      var x = my_fun(1,2,3);
+      print(x);
+  }
+}
+

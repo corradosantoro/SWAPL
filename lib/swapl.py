@@ -203,6 +203,10 @@ def p_assing_4(t):
     ' assign : NAME DOT NAME EQUAL expr '
     t[0] = t[5] + [ Load(t[1]), SetAttribute( t[3] ) ]
 
+def p_assing_5(t):
+    ' assign : increment '
+    t[0] = t[1]
+
 
 # ------------------------------------------------------
 # with list
@@ -360,6 +364,17 @@ def p_for(t):
     jump_target = to_skip + 1 + len(t[5]) + 1
     t[0] = t[3] + t[5] + [ Branch( (Branch.NEQ, to_skip + 1) ) ] + t[9] + t[7] + \
       [ Branch( (Branch.UNCONDITIONAL, -jump_target) ) ]
+
+# ------------------------------------------------------
+# increments
+# ------------------------------------------------------
+def p_pp1_expr(t):
+    'increment : PPLUS NAME'
+    t[0] = [ Load(t[2]), Push(1), Add(), Dup(), Store(t[2]) ]
+
+def p_pp2_expr(t):
+    'increment : NAME PPLUS'
+    t[0] = [ Load(t[1]), Dup(), Push(1), Add(), Store(t[1]) ]
 
 # ------------------------------------------------------
 # expressions
