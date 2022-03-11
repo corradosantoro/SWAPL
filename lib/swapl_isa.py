@@ -120,6 +120,7 @@ class Invoke(Instruction):
             if ret is not None:
                 runtime.push(ret)
         elif isinstance(method, SWAPL_Function):
+            print("WARNING! You have to check if you're calling an instance")
             values.insert(0, obj)
             method.call(runtime, values)
         else:
