@@ -28,23 +28,23 @@ function distance_from_line(line, x, y) {
 behaviour main {
 
   with roles("leader") {
-      this.x = 0;
-      this.y = 0;
-      this.heading = 3.14159/4.0;
-      this.image = "arrow_red.png";
+      agent.x = 0;
+      agent.y = 0;
+      agent.heading = 3.14159/4.0;
+      agent.image = "arrow_red.png";
   }
 
   with roles("follower") {
-    this.x = Random.uniform(-100, 100);
-    this.y = Random.uniform(-100, 100);
-    this.heading = Random.uniform(-Math.pi, Math.pi);
+    agent.x = Random.uniform(-100, 100);
+    agent.y = Random.uniform(-100, 100);
+    agent.heading = Random.uniform(-Math.pi, Math.pi);
   }
 
   with roles("leader") {
-      #this.v = 8;
+      #agent.v = 8;
       while (1) {
           wait(20);
-          #this.heading = normalize(Random.uniform(0, 2*3.14159));
+          #agent.heading = normalize(Random.uniform(0, 2*3.14159));
       }
   }
   |
@@ -58,16 +58,16 @@ behaviour main {
       while (1) {
 
           # rule 1.1 yaw alignment
-          var align_difference = Math.angleNormalize(leader.heading - this.heading);
-          this.w = k_hdg * align_difference;
+          var align_difference = Math.angleNormalize(leader.heading - agent.heading);
+          agent.w = k_hdg * align_difference;
 
           # rule 1.2 formation line alignment
           var formation_line_hdg = Math.angleNormalize(leader.heading + Math.pi/2);
           var line = line_for_point(formation_line_hdg, leader.x, leader.y);
-          var dist_from_line = distance_from_line(line, this.x, this.y);
+          var dist_from_line = distance_from_line(line, agent.x, agent.y);
 
-          var dx = leader.x - this.x;
-          var dy = leader.y - this.y;
+          var dx = leader.x - agent.x;
+          var dy = leader.y - agent.y;
           var hdg_difference = Math.angleNormalize(formation_line_hdg - Math.atan2(dy, dx));
 
           dist_from_line = dist_from_line * Math.sgn(hdg_difference);
@@ -78,12 +78,12 @@ behaviour main {
               v = kp_v * dist_from_line + ki_v * cohesion_integral;
               v = Control.saturate(v, -10, 10);
           }
-          this.loc_vx = v;
+          agent.loc_vx = v;
 
           # rule 2 cohesion
-          var left = all.but(this).filter(
+          var left = all.but(agent).filter(
                                           function(ag) {
-                                              var hdg = Math.angleNormalize(Math.atan2(ag.y - this.y, ag.x - this.x));
+                                              var hdg = Math.angleNormalize(Math.atan2(ag.y - agent.y, ag.x - agent.x));
                                               if (hdg > Math.pi/2)
                                                   return true;
                                               else if (hdg < -Math.pi/2)
@@ -93,9 +93,9 @@ behaviour main {
                                           }
                                           );
 
-          var right = all.but(this).filter(
+          var right = all.but(agent).filter(
                                            function(ag) {
-                                               var hdg = Math.angleNormalize(Math.atan2(ag.y - this.y, ag.x - this.x));
+                                               var hdg = Math.angleNormalize(Math.atan2(ag.y - agent.y, ag.x - agent.x));
                                                if (hdg < Math.pi/2) {
                                                    if (hdg > - Math.pi/2)
                                                        return true;
@@ -104,44 +104,44 @@ behaviour main {
                                            }
                                            );
 
-          #print(this.name, "LEFT", left);
-          #print(this.name, "RIGHT", right);
+          #print(agent.name, "LEFT", left);
+          #print(agent.name, "RIGHT", right);
 
           var nearest_left = left.minimum(
                                           function(ag) {
-                                              var d = Math.hypot(this.x - ag.x, this.y - ag.y);
+                                              var d = Math.hypot(agent.x - ag.x, agent.y - ag.y);
                                               return d;
                                           });
           var nearest_right = right.minimum(
                                             function(ag) {
-                                                var d = Math.hypot(this.x - ag.x, this.y - ag.y);
+                                                var d = Math.hypot(agent.x - ag.x, agent.y - ag.y);
                                                 return d;
                                             });
 
-          #print(this.name, "NEAREST-LEFT", nearest_left);
-          #print(this.name, "NEAREST-RIGHT", nearest_right);
+          #print(agent.name, "NEAREST-LEFT", nearest_left);
+          #print(agent.name, "NEAREST-RIGHT", nearest_right);
 
           var d_left = 0;
           var d_right = 0;
 
           if (nearest_left != none)
-              d_left = - Math.hypot(this.x - nearest_left.x, this.y - nearest_left.y);
+              d_left = - Math.hypot(agent.x - nearest_left.x, agent.y - nearest_left.y);
 
           if (nearest_right != none)
-              d_right = Math.hypot(this.x - nearest_right.x, this.y - nearest_right.y);
+              d_right = Math.hypot(agent.x - nearest_right.x, agent.y - nearest_right.y);
 
           var d = (d_left + d_right) / 2;
-          #print(this.name, d);
+          #print(agent.name, d);
 
-          this.loc_vy = 0;
+          agent.loc_vy = 0;
           if (dist_from_line < 40) {
               if (Math.fabs(d) > 10) {
                   var v = - d * 0.2;
-                  this.loc_vy = Control.saturate(v, -10, 10);
+                  agent.loc_vy = Control.saturate(v, -10, 10);
               }
               else if (Math.fabs(d) < 5) {
                   var v = 100 / (d*d);
-                  this.loc_vy = Control.saturate(v, -10, 10);
+                  agent.loc_vy = Control.saturate(v, -10, 10);
               }
           }
 

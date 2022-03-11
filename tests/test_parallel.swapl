@@ -9,23 +9,23 @@ agentset ( { name : "one", role : "leader" },
 
 behaviour main {
   with roles("leader") {
-    this.v = 20;
+    agent.v = 20;
     while (1) {
       wait(1);
-      this.w = rand(0, 2);
+      agent.w = rand(0, 2);
     }
   }
   |
   with roles("follower") {
-    this.x = rand(0, 100);
-    this.y = rand(0, 100);
+    agent.x = rand(0, 100);
+    agent.y = rand(0, 100);
     var leader = role("leader");
-    this.v = 15;
+    agent.v = 15;
     while (1) {
-      var dx = leader.x - this.x;
-      var dy = leader.y - this.y;
-      var hdg_difference = atan2(dy, dx) * 180.0/3.14159 - this.heading;
-      this.w = hdg_difference * 20;
+      var dx = leader.x - agent.x;
+      var dy = leader.y - agent.y;
+      var hdg_difference = atan2(dy, dx) * 180.0/3.14159 - agent.heading;
+      agent.w = hdg_difference * 20;
       wait(0.1);
     }
   }

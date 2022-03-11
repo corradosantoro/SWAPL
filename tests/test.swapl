@@ -27,14 +27,14 @@ behaviour main {
   with one {
     var c = 3 + 5;
     var d = c + 10;
-    print(this, c, d);
-    this.variable = 5;
-    print(this.variable);
+    print(agent, c, d);
+    agent.variable = 5;
+    print(agent.variable);
   }
   #
   with all {
     var a = 3 + 2;
-    print("ciao", a, this.name, this.role, this);
+    print("ciao", a, agent.name, agent.role, agent);
     if (a == 4) {
       print("CINQUE!");
       print("sei sette otto!");
@@ -45,11 +45,11 @@ behaviour main {
   }
   #
   with all {
-      this.variable = 1;#Random.unform(0,1);
-      print("final", this.variable);
+      agent.variable = 1;#Random.unform(0,1);
+      print("final", agent.variable);
       var a = 0;
       while (a < 10) {
-          print(this.name, a);
+          print(agent.name, a);
           a = a + 1;
       }
   }

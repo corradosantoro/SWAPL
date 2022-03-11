@@ -199,6 +199,9 @@ class OrderedSet(Set):
     def set_item(self, uItemIndex, uItemData):
         self.data[uItemIndex] = uItemData
 
+    def insert(self, uIndex, uValue):
+        self.data.insert(uIndex, uValue)
+
 # -----------------------------------------------------------------
 # class StructData(SWAPLObject):
 

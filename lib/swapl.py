@@ -284,6 +284,7 @@ def p_statements_2(t):
 def p_statement(t):
     ''' statement : assign SEMICOLON
                   | proccall
+                  | methcall
                   | returnstmt
                   | if_block
                   | for_block
@@ -297,6 +298,14 @@ def p_proc_call(t):
     ' proccall : NAME list_set_statement SEMICOLON '
     (count, pgm) = t[2]
     t[0] = pgm + [ MkOrdSet(count), Call(t[1]) ]
+
+# ------------------------------------------------------
+# methcall
+# ------------------------------------------------------
+def p_meth_call(t):
+    ' methcall : NAME DOT NAME list_set_statement SEMICOLON '
+    (count, pgm) = t[4]
+    t[0] = [ Load(t[1]) ] + pgm + [ MkOrdSet(count), Invoke(t[3]) ]
 
 # ------------------------------------------------------
 # funcall
@@ -369,16 +378,20 @@ def p_for(t):
 # increments
 # ------------------------------------------------------
 def p_pp1_expr(t):
-    'increment : PPLUS NAME'
-    t[0] = [ Load(t[2]), Push(1), Add(), Dup(), Store(t[2]) ]
+    'increment : PLUS PLUS NAME'
+    t[0] = [ Load(t[3]), Push(1), Add(), Dup(), Store(t[3]) ]
 
 def p_pp2_expr(t):
-    'increment : NAME PPLUS'
+    'increment : NAME PLUS PLUS'
     t[0] = [ Load(t[1]), Dup(), Push(1), Add(), Store(t[1]) ]
 
 # ------------------------------------------------------
 # expressions
 # ------------------------------------------------------
+
+def p_instance_expr(t):
+    'expr : INSTANCE NAME LPAREN RPAREN'
+    t[0] = [ MkInstance(t[2]) ]
 
 def p_uminus_expr(t):
     'expr : MINUS expr %prec UMINUS'
@@ -478,11 +491,6 @@ def p_pythonlink(t):
     ' expr : PYTHONLINK STRING '
     t[0] = [ Push(PythonLink(t[2])) ]
 
-def p_fun_call_2(t):
-    ' expr : NAME DOT NAME list_set_statement '
-    (count, pgm) = t[4]
-    t[0] = [ Load(t[1]) ] + pgm + [ MkOrdSet(count), Invoke( t[3] ) ]
-
 def p_field_set(t):
     ' expr : NAME DOT with_set '
     t[0] = [ Load(t[1]) ] + (t[3])
@@ -495,6 +503,11 @@ def p_fun_call(t):
     ' expr : NAME list_set_statement '
     (count, pgm) = t[2]
     t[0] = pgm + [ MkOrdSet(count), FunCall(t[1]) ]
+
+def p_fun_call_2(t):
+    ' expr : NAME DOT NAME list_set_statement '
+    (count, pgm) = t[4]
+    t[0] = [ Load(t[1]) ] + pgm + [ MkOrdSet(count), Invoke( t[3] ) ]
 
 #def p_all_expr(t):
 #    'expr : ALL'
@@ -524,8 +537,20 @@ def p_fundef_expr(t):
     'expr : function_def'
     t[0] = [ Push(t[1][0]) ]
 
-def p_none_expr(t):
+def p_none1_expr(t):
+    'expr : nONE'
+    t[0] = [ Push(Constants.NONE) ]
+
+def p_none2_expr(t):
     'expr : NONE'
+    t[0] = [ Push(Constants.NONE) ]
+
+def p_none3_expr(t):
+    'expr : nULL'
+    t[0] = [ Push(Constants.NONE) ]
+
+def p_none4_expr(t):
+    'expr : NULL'
     t[0] = [ Push(Constants.NONE) ]
 
 def p_true_expr(t):

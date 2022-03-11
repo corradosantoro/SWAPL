@@ -17,24 +17,24 @@ function normalize(angle) {
 
 behaviour main {
   with roles("leader") {
-    this.x = 0;
-    this.y = 0;
-    this.z = 20;
-    this.yaw = 3.14159/4.0;
-    this.image = "arrow_red.png";
+    agent.x = 0;
+    agent.y = 0;
+    agent.z = 20;
+    agent.yaw = 3.14159/4.0;
+    agent.image = "arrow_red.png";
   }
 
   with roles("follower") {
-    this.x = Random.uniform(-100, 100);
-    this.y = Random.uniform(-100, 100);
-    this.z = 20;
-    this.yaw = Random.uniform(0, 3);
+    agent.x = Random.uniform(-100, 100);
+    agent.y = Random.uniform(-100, 100);
+    agent.z = 20;
+    agent.yaw = Random.uniform(0, 3);
   }
 
   with roles("leader") {
     while (1) {
         wait(5);
-        this.yaw = normalize(Random.uniform(0, 2*3.14159));
+        agent.yaw = normalize(Random.uniform(0, 2*3.14159));
     }
   }
   |
@@ -43,8 +43,8 @@ behaviour main {
     while (1) {
       var k_hdg = 1.5;
 
-      var align_difference = normalize(leader.yaw - this.yaw);
-      this.wz = k_hdg * align_difference;
+      var align_difference = normalize(leader.yaw - agent.yaw);
+      agent.wz = k_hdg * align_difference;
 
       wait(0.1);
     }

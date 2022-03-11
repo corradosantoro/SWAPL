@@ -1,0 +1,29 @@
+
+model "base_agent";
+
+roleset ( { name : "main" } ) ;
+agentset ( { name : "main_agent", role : "main" } );
+
+var controller = {
+    kp : 0,
+    ki : 0,
+    kd : 0,
+    _ctor :
+    function(this,kp,ki,kd)
+    {
+     this.kp = kp;
+     this.ki = ki;
+     this.kd = kd;
+    }
+};
+
+behaviour main {
+    with all {
+        var c1 = instance controller();
+        var c2 = instance controller();
+        c1._ctor(1,2,3);
+        c2._ctor(3,4,5);
+        print(c1);
+        print(c2);
+    }
+}

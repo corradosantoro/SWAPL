@@ -29,12 +29,13 @@ reserved = {
     'else' : 'ELSE',
     'true' : 'TRUE',
     'false' : 'FALSE',
-    'none' : 'NONE',
+    'none' : 'nONE',
     'None' : 'NONE',
-    'null' : 'NONE',
-    'Null' : 'NONE',
+    'null' : 'nULL',
+    'Null' : 'NULL',
     'function' : 'FUNCTION',
     'return' : 'RETURN',
+    'instance' : 'INSTANCE',
     '@pythonlink' : 'PYTHONLINK',
     # 'uavset' : 'UAVSET',
     # 'fun' : 'FUN',
@@ -54,7 +55,6 @@ tokens = list(reserved.values()) + ['SEMICOLON',
                                     'LT',
                                     'GT',
                                     'PLUS',
-                                    'PPLUS',
                                     'MINUS',
                                     'TIMES',
                                     'DIVIDE',
@@ -72,7 +72,6 @@ tokens = list(reserved.values()) + ['SEMICOLON',
 # Tokens
 
 t_PLUS       = r'\+'
-t_PPLUS       = r'\++'
 t_MINUS      = r'-'
 t_TIMES      = r'\*'
 t_DIVIDE     = r'/'
@@ -147,6 +146,7 @@ def t_error(t):
 #def t_eof(t):
 #    print("EOF of file")
 #    return t
+
 
 # Build the lexer
 import ply.lex as lex

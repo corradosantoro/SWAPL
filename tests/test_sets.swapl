@@ -10,7 +10,7 @@ agentset ( { name: "main_agent",   role: "leader" },
 
 behaviour main {
     with all {
-        print(this.name, this);
+        print(agent.name, agent);
         var f = all.filter(function(ag) { return ag.role == "follower"; });
         print(f);
     }
@@ -18,7 +18,7 @@ behaviour main {
         var f = all.minimum(function (x) { return x.id; });
         print("MIN", f);
         print("ONE");
-        print(this.name, one);
+        print(agent.name, one);
         var i = 0;
         var all_set = all;
         while (i < 3) {
@@ -29,10 +29,10 @@ behaviour main {
     }
     with roles("leader") {
         print("LEADERS");
-        print(this);
+        print(agent);
     }
     with roles("follower").one {
         print("FOLLOWERS");
-        print(this.name);
+        print(agent.name);
     }
 }

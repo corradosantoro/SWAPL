@@ -95,12 +95,21 @@ class Branch(Instruction):
         else:
             return None
 # -----------------------------------------------------------------
+class MkInstance(Instruction):
+    def execute(self, pc, runtime):
+        v = runtime._get_var(self.term)
+        new_instance = v.clone()
+        runtime.push(new_instance)
+# -----------------------------------------------------------------
 class Invoke(Instruction):
     def execute(self, pc, runtime):
         values = runtime.pop()
         obj = runtime.pop()
         method = obj.get_attribute(self.term)
         args = values.items()
+
+        from swapl_program import SWAPL_Function
+
         if isinstance(method, PythonLink):
             func = method.eval_as_attribute()
             ret = func(*args)
@@ -110,6 +119,9 @@ class Invoke(Instruction):
             ret = method.evaluate(*args)
             if ret is not None:
                 runtime.push(ret)
+        elif isinstance(method, SWAPL_Function):
+            values.insert(0, obj)
+            method.call(runtime, values)
         else:
             # its a normal SWAPL_Object method
             args.insert(0, runtime)

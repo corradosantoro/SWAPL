@@ -116,7 +116,7 @@ class SWAPL_Runtime:
         return self.heap.make_var(uVar)
 
     def _get_var(self, uVar):
-        if uVar == 'this':
+        if uVar == 'agent':
             return self.agent
         else:
             return self.heap.get_var(uVar)
