@@ -99,6 +99,7 @@ class MkInstance(Instruction):
     def execute(self, pc, runtime):
         v = runtime._get_var(self.term)
         new_instance = v.clone()
+        new_instance._isinstance = True
         runtime.push(new_instance)
 # -----------------------------------------------------------------
 class Invoke(Instruction):
@@ -120,8 +121,8 @@ class Invoke(Instruction):
             if ret is not None:
                 runtime.push(ret)
         elif isinstance(method, SWAPL_Function):
-            print("WARNING! You have to check if you're calling an instance")
-            values.insert(0, obj)
+            if obj._isinstance:
+                values.insert(0, obj)
             method.call(runtime, values)
         else:
             # its a normal SWAPL_Object method

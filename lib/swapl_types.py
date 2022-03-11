@@ -24,6 +24,7 @@ class SWAPLObject:
 
     def __init__(self):
         self._attributes = {}
+        self._isinstance = False
 
     def __repr__(self):
         return "{}: {}".format(self.__class__.__name__, repr(self._attributes))
