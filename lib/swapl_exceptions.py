@@ -29,5 +29,9 @@ class InvalidOpeningInstructionException(Exception):
 class InvalidClosingInstructionException(Exception):
     def __init__(self):
         super().__init__('A with block must end with ParExecEnd instruction')
+# -----------------------------------------------------------------
+class RedefinedBehaviourException(Exception):
+    def __init__(self, uMessage):
+        super().__init__(uMessage)
 
 

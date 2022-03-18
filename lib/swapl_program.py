@@ -21,10 +21,10 @@ class SWAPL_Program:
     ROLESET = '__roleset__'
     AGENTATTRSET = '__agentattributes__'
     ENVIRONMENT = '__environment__'
+    AGENTMODEL = '__agentmodel__'
 
     def __init__(self, uBList = []):
         self.behaviours = { }
-        self.agent_file = None
         self.agents = { }
         self.add_behaviours(uBList)
         self.globals_heap = SWAPL_Heap()
@@ -33,22 +33,35 @@ class SWAPL_Program:
     def __repr__(self):
         return repr(self.behaviours)
 
+    def add_behaviour(self, uB):
+        self.behaviours[uB.get_name()] = uB
+
     def add_behaviours(self, uBList):
         for b in uBList:
             self.behaviours[b.get_name()] = b
 
+    def get_behaviour(self, name):
+        return self.behaviours[name]
+
+    def get_behaviours(self):
+        return self.behaviours.values()
+
+    def del_behaviour(self, name):
+        del self.behaviours[name]
+
+    def has_behaviour(self, name):
+        return name in self.behaviours.keys()
+
     def disasm(self):
         for b in self.behaviours.values():
             print(b)
-
-    def set_agent_model(self, m):
-        self.agent_file = m
 
     def run(self):
         self.globals_heap.make_var(SWAPL_Program.ROLESET)
         self.globals_heap.make_var(SWAPL_Program.AGENTSET)
         self.globals_heap.make_var(SWAPL_Program.AGENTATTRSET)
         self.globals_heap.make_var(SWAPL_Program.ENVIRONMENT)
+        self.globals_heap.make_var(SWAPL_Program.AGENTMODEL)
 
         self.behaviours[SWAPL_Program.GLOBALS].run_simple(self, self.globals_heap, True)
 
@@ -68,11 +81,12 @@ class SWAPL_Program:
     def create_agents(self):
         ag_set = self.globals_heap.get_var(SWAPL_Program.AGENTSET)
         ag_attr_set = self.globals_heap.get_var(SWAPL_Program.AGENTATTRSET)
+        agent_file = self.globals_heap.get_var(SWAPL_Program.AGENTMODEL)
 
         current_path = pathlib.Path(__file__).parent.resolve()
         sys.path.insert(0, str(current_path) + '/agentlib/')
 
-        self.agent_module = importlib.import_module(self.agent_file)
+        self.agent_module = importlib.import_module(agent_file)
         gid = 0
         for agent in ag_set.items():
             try:
@@ -149,6 +163,9 @@ class SWAPL_Behaviour:
 
     def get_name(self):
         return self.name
+
+    def get_code(self):
+        return self.code
 
     def run_simple(self, program, heap, do_not_push):
         #

@@ -12,7 +12,7 @@ behaviour main {
         var c2 = instance controller();
         c1._ctor(1,2,3);
         c2._ctor(3,4,5);
-        #print(c1);
-        #print(c2);
+        print(c1);
+        print(c2);
     }
 }

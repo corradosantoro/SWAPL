@@ -58,8 +58,7 @@ def p_headers_2(t):
 
 def p_header_agent_model(t):
     ' header : agent_model '
-    SWAPL_Compiler.program.set_agent_model(t[1])
-    t[0] = []
+    t[0] = [ Push(t[1]), Store(SWAPL_Program.AGENTMODEL) ]
 
 # ------------------------------------------------------
 def p_header_role_set(t):
