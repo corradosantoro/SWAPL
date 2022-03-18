@@ -1,0 +1,14 @@
+
+var controller = {
+    kp : 0,
+    ki : 0,
+    kd : 0,
+    _ctor :
+    function(this,kp,ki,kd)
+    {
+     this.kp = kp;
+     this.ki = ki;
+     this.kd = kd;
+    }
+};
+

@@ -23,6 +23,7 @@ reserved = {
     'agentset' : 'AGENTSET',
     'attributes' : 'AGENTATTRSET',
     'environment' : 'ENVIRONMENT',
+    'import' : 'IMPORT',
     'while' : 'WHILE',
     'for' : 'FOR',
     'if' : 'IF',
@@ -39,8 +40,6 @@ reserved = {
     '@pythonlink' : 'PYTHONLINK',
     # 'uavset' : 'UAVSET',
     # 'fun' : 'FUN',
-    # 'roles' : 'ROLES',
-    # 'this' : 'THIS',
     # 'index' : 'INDEX',
     # 'sync' : 'SYNC',
     }

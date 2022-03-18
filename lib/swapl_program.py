@@ -30,6 +30,9 @@ class SWAPL_Program:
         self.globals_heap = SWAPL_Heap()
         self.lib = SWAPL_Lib(self)
 
+    def __repr__(self):
+        return repr(self.behaviours)
+
     def add_behaviours(self, uBList):
         for b in uBList:
             self.behaviours[b.get_name()] = b

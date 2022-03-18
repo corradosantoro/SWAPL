@@ -1,4 +1,3 @@
-
 # -----------------------------------------------------------------------------
 # swapl.py
 # -----------------------------------------------------------------------------
@@ -21,9 +20,9 @@ from swapl_types import *
 from swapl_isa import *
 from swapl_program import *
 from swapl_www import *
+from swapl_compiler import *
 
-_pgm = SWAPL_Program()
-
+SWAPL_Compiler.program = SWAPL_Program()
 
 precedence = (
     ('left','DOT'),
@@ -37,9 +36,13 @@ precedence = (
 
 def p_program_0(t):
     ' program : headers b_bodies '
-    global _pgm
     bg = SWAPL_Behaviour( SWAPL_Program.GLOBALS, t[1] )
-    _pgm.add_behaviours( t[2] + [ bg ] )
+    SWAPL_Compiler.program.add_behaviours( t[2] + [ bg ] )
+
+def p_program_1(t):
+    ' program : headers '
+    bg = SWAPL_Behaviour( SWAPL_Program.GLOBALS, t[1] )
+    SWAPL_Compiler.program.add_behaviours( [ bg ] )
 
 # ------------------------------------------------------
 
@@ -55,8 +58,7 @@ def p_headers_2(t):
 
 def p_header_agent_model(t):
     ' header : agent_model '
-    global _pgm
-    _pgm.set_agent_model(t[1])
+    SWAPL_Compiler.program.set_agent_model(t[1])
     t[0] = []
 
 # ------------------------------------------------------
@@ -75,6 +77,10 @@ def p_header_environment(t):
 def p_header_assign(t):
     ' header : assign SEMICOLON '
     t[0] = t[1]
+def p_header_import(t):
+    ' header : IMPORT STRING SEMICOLON '
+    SWAPL_Compiler.add_include_file(t[2])
+    t[0] = []
 # ------------------------------------------------------
 
 def p_agent_model(t):
@@ -596,24 +602,20 @@ if options.server_port is not None:
     filename += 2
 
 
-#current_path = pathlib.Path(__file__).parent.resolve()
-#lib_file = str(current_path) + '/swapllib/all.swapl'
-#fp = open(lib_file)
-#contents = fp.read()
-#fp.close()
+# fp = open(sys.argv[filename])
+# contents = fp.read()
+# result = parser.parse(contents)
+# fp.close()
 
-fp = open(sys.argv[filename])
-contents = fp.read()
-result = parser.parse(contents)
-fp.close()
+SWAPL_Compiler.compile(parser, sys.argv[filename])
 
 if options.disasm:
-    _pgm.disasm()
+    SWAPL_Compiler.program.disasm()
 else:
     if options.server_port is not None:
-        SWAPLHttpRequestHandler.program = _pgm
+        SWAPLHttpRequestHandler.program = SWAPL_Compiler.program
         SWAPLHttpServer(int(options.server_port)).start()
-    _pgm.run()
+    SWAPL_Compiler.program.run()
     if options.server_port is not None:
         while True:
             import time
