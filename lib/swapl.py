@@ -22,6 +22,7 @@ from swapl_program import *
 from swapl_www import *
 from swapl_compiler import *
 
+SWAPL_Compiler.init()
 SWAPL_Compiler.program = SWAPL_Program()
 
 precedence = (

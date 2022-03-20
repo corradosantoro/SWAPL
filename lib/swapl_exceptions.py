@@ -33,5 +33,9 @@ class InvalidClosingInstructionException(Exception):
 class RedefinedBehaviourException(Exception):
     def __init__(self, uMessage):
         super().__init__(uMessage)
+# -----------------------------------------------------------------
+class SourceFileNotFoundException(Exception):
+    def __init__(self, uMessage):
+        super().__init__(uMessage)
 
 

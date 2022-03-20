@@ -2,6 +2,9 @@
 # swapl_compiler.py
 # -----------------------------------------------------------------------------
 
+import os.path
+import pathlib
+
 from swapl_program import *
 
 class SWAPL_Compiler:
@@ -11,6 +14,14 @@ class SWAPL_Compiler:
     program_parts = [ ]
 
     program = [ ]
+
+    paths = [ ]
+
+    @classmethod
+    def init(cls):
+        current_path = pathlib.Path(__file__).parent.resolve()
+        cls.paths = [ '.', str(current_path) + '/swapllib' ]
+
 
     @classmethod
     def add_include_file(cls, fname):
@@ -36,7 +47,13 @@ class SWAPL_Compiler:
 
         if len(cls.include_files) > 0:
             f = cls.include_files.pop(0)
-            cls._compile(parser, f)
+
+            for path in cls.paths:
+                fullname = path + '/' + f
+                if os.path.exists(fullname):
+                    cls._compile(parser, fullname)
+                    return
+            raise SourceFileNotFoundException(f)
 
     @classmethod
     def _merge(cls):
