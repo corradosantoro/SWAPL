@@ -1,11 +1,13 @@
 
+import "control";
+
 model "base_agent";
 
 roleset ( { name: "leader" },
           { name: "follower" } );
 
 agentset ( { name: "leader", role: "leader" },
-           { spawn: 2, role: "follower" } );
+           { spawn: 3, role: "follower" } );
 
 environment ( { left: -120, top: -120, right: 120, bottom: 120, z_bottom : 0, z_top: 100 } );
 
@@ -51,15 +53,22 @@ behaviour main {
   with roles("follower") {
       var leaders = all.roles("leader");
       var leader = leaders[0];
+
       var k_hdg = 1.5;
-      var kp_v = 2.5;
+      var heading_controller = instance pid_controller;
+      heading_controller.make(k_hdg, 0, 0);
+
+      var kp_v = 1.5;
       var ki_v = 0.1;
-      var cohesion_integral = 0.0;
+      var cohesion_controller = instance pid_controller;
+      cohesion_controller.make(kp_v, 0, 0);
+      cohesion_controller.set_saturation(10);
+
       while (1) {
 
           # rule 1.1 yaw alignment
           var align_difference = Math.angleNormalize(leader.heading - agent.heading);
-          agent.w = k_hdg * align_difference;
+          agent.w = heading_controller.evaluate_err(align_difference);
 
           # rule 1.2 formation line alignment
           var formation_line_hdg = Math.angleNormalize(leader.heading + Math.pi/2);
@@ -74,9 +83,10 @@ behaviour main {
 
           var v = 0;
           if (Math.fabs(align_difference) < THRESHOLD) {
-              cohesion_integral = cohesion_integral + dist_from_line;
-              v = kp_v * dist_from_line + ki_v * cohesion_integral;
-              v = Control.saturate(v, -10, 10);
+              v = cohesion_controller.evaluate_err(dist_from_line);
+              # cohesion_integral = cohesion_integral + dist_from_line;
+              # v = kp_v * dist_from_line + ki_v * cohesion_integral;
+              #v = Control.saturate(v, -10, 10);
           }
           agent.loc_vx = v;
 

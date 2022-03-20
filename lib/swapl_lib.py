@@ -60,12 +60,12 @@ class SWAPL_Lib:
         self.program.globals_heap.make_var("Math")
         self.program.globals_heap.set_var("Math", Math)
 
-        Control = SWAPLObject()
-        Control.from_dict(
-            { "saturate" : saturate() }
-        )
-        self.program.globals_heap.make_var("Control")
-        self.program.globals_heap.set_var("Control", Control)
+        # Control = SWAPLObject()
+        # Control.from_dict(
+        #     { "saturate" : saturate() }
+        # )
+        # self.program.globals_heap.make_var("Control")
+        # self.program.globals_heap.set_var("Control", Control)
 
     def export(self, method, name):
         self.functions[name] = method

@@ -123,7 +123,9 @@ class Invoke(Instruction):
         elif isinstance(method, SWAPL_Function):
             if obj._isinstance:
                 values.insert(0, obj)
-            method.call(runtime, values)
+            ret = method.call(runtime, values)
+            if ret is not None:
+                runtime.push(ret)
         else:
             # its a normal SWAPL_Object method
             args.insert(0, runtime)

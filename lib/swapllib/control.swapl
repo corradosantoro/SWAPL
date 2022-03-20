@@ -1,14 +1,51 @@
 
-var controller = {
+var pid_controller = {
     kp : 0,
     ki : 0,
     kd : 0,
-    _ctor :
+    integral_error : 0,
+    has_saturation : false,
+    saturation : 0,
+    make :
     function(this,kp,ki,kd)
     {
      this.kp = kp;
      this.ki = ki;
      this.kd = kd;
+     this.integral_error = 0;
+    },
+
+    set_saturation :
+    function (this, _sat_val) {
+                               this.has_saturation = true;
+                               this.saturation = _sat_val;
+    },
+
+    evaluate:
+    function(this, target_var, process_var)
+    {
+     return this.evaluate_err(target_var - process_var);
+    },
+
+    evaluate_err:
+    function(this, error)
+    {
+     this.integral_error = this.integral_error + error;
+     var output = error * this.kp + this.integral_error * this.ki;
+     if (this.has_saturation)
+         output = Control.saturate(output, -this.saturation, this.saturation);
+     return output;
     }
 };
+
+var Control = {
+
+ saturate :
+ function(val, _min, _max) {
+                      if (val > _max) return _max;
+                      else if (val < _min) return _min;
+                      else return val;
+ }
+};
+
 

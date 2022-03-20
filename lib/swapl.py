@@ -396,7 +396,7 @@ def p_pp2_expr(t):
 # ------------------------------------------------------
 
 def p_instance_expr(t):
-    'expr : INSTANCE NAME LPAREN RPAREN'
+    'expr : INSTANCE NAME ' # LPAREN RPAREN'
     t[0] = [ MkInstance(t[2]) ]
 
 def p_uminus_expr(t):
@@ -570,7 +570,7 @@ def p_false_expr(t):
 # ------------------------------------------------------
 
 def p_error(t):
-    print("Syntax error at '%s' line %d" % (t.value, t.lexer.lineno))
+    print("%s: Syntax error at '%s' line %d" % (SWAPL_Compiler.current_file, t.value, t.lexer.lineno))
     sys.exit(1)
 
 
@@ -607,6 +607,7 @@ if options.server_port is not None:
 # result = parser.parse(contents)
 # fp.close()
 
+SWAPL_Compiler.lexer = lexer
 SWAPL_Compiler.compile(parser, sys.argv[filename])
 
 if options.disasm:

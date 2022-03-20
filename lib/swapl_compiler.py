@@ -9,7 +9,9 @@ from swapl_program import *
 
 class SWAPL_Compiler:
 
+    lexer = None
     parser = None
+    current_file = None
     include_files = [ ]
     program_parts = [ ]
 
@@ -37,6 +39,8 @@ class SWAPL_Compiler:
 
     @classmethod
     def _compile(cls, parser, fname):
+        cls.current_file = fname
+        cls.lexer.lineno = 1
         fp = open(fname)
         contents = fp.read()
         result = parser.parse(contents)
@@ -49,7 +53,7 @@ class SWAPL_Compiler:
             f = cls.include_files.pop(0)
 
             for path in cls.paths:
-                fullname = path + '/' + f
+                fullname = path + '/' + f + '.swapl'
                 if os.path.exists(fullname):
                     cls._compile(parser, fullname)
                     return

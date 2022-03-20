@@ -1,8 +1,8 @@
-
-var Random = { uniform : @pythonlink "random.uniform" };
-
-var Math = { pi : @pythonlink "math.pi",
-             fabs : @pythonlink "math.fabs",
-             sqrt : @pythonlink "math.sqrt",
-             atan2 : @pythonlink "math.atan2" };
+#
+# var Random = { uniform : @pythonlink "random.uniform" };
+#
+# var Math = { pi : @pythonlink "math.pi",
+#              fabs : @pythonlink "math.fabs",
+#              sqrt : @pythonlink "math.sqrt",
+#              atan2 : @pythonlink "math.atan2" };
 
