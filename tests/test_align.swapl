@@ -84,9 +84,6 @@ behaviour main {
           var v = 0;
           if (Math.fabs(align_difference) < THRESHOLD) {
               v = cohesion_controller.evaluate_err(dist_from_line);
-              # cohesion_integral = cohesion_integral + dist_from_line;
-              # v = kp_v * dist_from_line + ki_v * cohesion_integral;
-              #v = Control.saturate(v, -10, 10);
           }
           agent.loc_vx = v;
 

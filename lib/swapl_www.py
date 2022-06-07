@@ -24,6 +24,9 @@ class SWAPLHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
         os.chdir(self.root_path)
         super().__init__(request, client_address, server)
 
+    def log_message(self, format, *args):
+        pass
+
     def do_GET(self):
         parsed = urlparse(self.path)
         #print(self.path, parsed)

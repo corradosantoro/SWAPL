@@ -6,7 +6,6 @@ import time
 import math
 
 from swapl_types import *
-from swapl_lib_control import *
 
 # -----------------------------------------------------------------
 class angleNormalize(PythonFunction):
