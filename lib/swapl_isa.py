@@ -126,6 +126,11 @@ class Invoke(Instruction):
             ret = method.call(runtime, values)
             if ret is not None:
                 runtime.push(ret)
+        elif isinstance(method, AttributeInterface):
+            method = method.get()
+            ret = method(*args)
+            if ret is not None:
+                runtime.push(ret)
         else:
             # its a normal SWAPL_Object method
             args.insert(0, runtime)
@@ -153,6 +158,8 @@ class Call(Instruction):
         if f is None:
             proc = runtime.program.lib.get_function(self.term)
             args = StartSL.pop_list(runtime, 1)
+            if proc is None:
+                raise UndefinedFunctionException(self.term)
             if isfun:
                 ret = proc(*args)
                 runtime.push(ret)

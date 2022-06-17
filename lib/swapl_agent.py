@@ -39,11 +39,11 @@ class SWAPL_Agent:
     def set_attribute(self,fname,fval):
         setattr(self, fname, fval)
 
-    def export(self, method, name):
-        self.methods[name] = method
+    #def export(self, method, name):
+    #    self.methods[name] = method
 
-    def get_method(self, name):
-        return self.methods[name]
+    #def get_method(self, name):
+    #    return self.methods[name]
 
     def on_create(self):
         pass

@@ -9,12 +9,6 @@ agentset ( { name : "one", role : "leader" },
 
 environment ( { left: -120, top: -120, right: 120, bottom: 120, z_bottom : 0, z_top: 100 } );
 
-function normalize(angle) {
-    while (angle > Math.pi) angle = angle - 2*Math.pi;
-    while (angle < -Math.pi) angle = angle + 2*Math.pi;
-    return angle;
-}
-
 behaviour main {
   with roles("leader") {
     agent.x = 0;
@@ -34,17 +28,20 @@ behaviour main {
   with roles("leader") {
     while (1) {
         wait(5);
-        agent.yaw = normalize(Random.uniform(0, 2*3.14159));
+        agent.yaw = angleNormalize(Random.uniform(0, 2*3.14159));
     }
   }
   |
   with roles("follower") {
-    var leader = role("leader");
+    var leaders = all.roles("leader");
+    var leader = leaders[0];
     while (1) {
       var k_hdg = 1.5;
 
-      var align_difference = normalize(leader.yaw - agent.yaw);
+      var align_difference = Math.angleNormalize(leader.yaw - agent.yaw);
       agent.wz = k_hdg * align_difference;
+
+      agent.set_v(1);
 
       wait(0.1);
     }
